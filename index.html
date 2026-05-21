@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>スライド一覧 | SoGood</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap');
+    body { font-family: 'Noto Sans JP', sans-serif; }
+    .slide-card {
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .slide-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+    .tag-focus    { background:#fef9c3; color:#92400e; border:1px solid #fde68a; }
+    .tag-section  { background:#eff6ff; color:#1e40af; border:1px solid #bfdbfe; }
+    .tag-ura      { background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; }
+    .tag-try      { background:#fdf4ff; color:#6b21a8; border:1px solid #e9d5ff; }
+    .spinner { border:3px solid #e5e7eb; border-top-color:#3b82f6; border-radius:50%; width:28px; height:28px; animation:spin 0.7s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+  <!-- Header -->
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+    <div class="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-black text-gray-800">📚 授業スライド一覧</h1>
+        <p id="last-updated" class="text-xs text-gray-400 mt-0.5">読み込み中...</p>
+      </div>
+      <button onclick="loadAll()" id="refresh-btn"
+        class="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-bold px-4 py-2 rounded-xl transition-colors">
+        <span id="refresh-icon">🔄</span> 更新
+      </button>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 py-8 space-y-10">
+    <div id="grade-1" class="grade-section"></div>
+    <div id="grade-2" class="grade-section"></div>
+    <div id="grade-3" class="grade-section"></div>
+  </main>
+
+  <footer class="text-center text-xs text-gray-400 py-6">
+    GitHubに新しいスライドをプッシュすると、「更新」ボタンを押すだけで自動反映されます
+  </footer>
+
+<script>
+const REPOS = [
+  {
+    id: 'grade-1',
+    repo: '1nen-slides',
+    label: '1年生',
+    color: 'blue',
+    icon: '📘',
+    pageBase: 'https://sogood117.github.io/1nen-slides/',
+  },
+  {
+    id: 'grade-2',
+    repo: '2nen-slides',
+    label: '2年生',
+    color: 'green',
+    icon: '📗',
+    pageBase: 'https://sogood117.github.io/2nen-slides/',
+  },
+  {
+    id: 'grade-3',
+    repo: '3nen-slides',
+    label: '3年生',
+    color: 'red',
+    icon: '📕',
+    pageBase: 'https://sogood117.github.io/3nen-slides/',
+  },
+];
+
+const COLOR_MAP = {
+  blue:  { header: 'bg-blue-600',  badge: 'bg-blue-100 text-blue-800',  border: 'border-blue-200' },
+  green: { header: 'bg-green-600', badge: 'bg-green-100 text-green-800', border: 'border-green-200' },
+  red:   { header: 'bg-red-600',   badge: 'bg-red-100 text-red-800',     border: 'border-red-200' },
+};
+
+// ファイル名 → 表示ラベルに変換
+function parseFileName(name) {
+  const base = name.replace('.html', '');
+
+  // semester prefix: 1S_ or 2S_
+  let sem = '';
+  let rest = base;
+  if (/^1S_/.test(base))      { sem = '1学期 '; rest = base.replace(/^1S_/, ''); }
+  else if (/^2S_/.test(base)) { sem = '2学期 '; rest = base.replace(/^2S_/, ''); }
+  else if (/^\d_/.test(base)) { rest = base.replace(/^\d_/, ''); }
+
+  // _ur suffix
+  let ura = '';
+  if (rest.endsWith('_ur')) { ura = '（裏面）'; rest = rest.replace(/_ur$/, ''); }
+
+  // _Try suffix
+  let tryLabel = '';
+  if (rest.endsWith('_Try')) { tryLabel = '（試）'; rest = rest.replace(/_Try$/, ''); }
+
+  // parse L and S/Focus
+  const match = rest.match(/^L(\d+)(?:_(S(\d+)|Focus|Focus_Try))?/);
+  if (!match) return { label: base, tag: 'other' };
+
+  const lesson  = `L${match[1]}`;
+  const section = match[2];
+  let sectionLabel = '';
+  let tag = 'section';
+
+  if (!section)                   { sectionLabel = ''; tag = 'section'; }
+  else if (section === 'Focus' || section === 'Focus_Try') {
+    sectionLabel = ' Focus'; tag = 'focus';
+  } else if (match[3]) {
+    sectionLabel = ` Section ${match[3]}`; tag = 'section';
+  }
+
+  if (ura)      { tag = 'ura'; }
+  if (tryLabel) { tag = 'try'; }
+
+  return {
+    label: `${sem}${lesson}${sectionLabel}${ura}${tryLabel}`,
+    lesson: parseInt(match[1]),
+    tag,
+  };
+}
+
+function tagBadge(tag) {
+  const map = {
+    focus:   { cls: 'tag-focus',   text: 'Focus' },
+    section: { cls: 'tag-section', text: 'Section' },
+    ura:     { cls: 'tag-ura',     text: '裏面' },
+    try:     { cls: 'tag-try',     text: 'Try' },
+  };
+  const t = map[tag] || { cls: 'tag-section', text: '' };
+  return `<span class="text-xs font-bold px-2 py-0.5 rounded-full ${t.cls}">${t.text}</span>`;
+}
+
+// レッスンごとにグループ化
+function groupByLesson(files) {
+  const groups = {};
+  files.forEach(f => {
+    if (!f.name.endsWith('.html')) return;
+    if (f.name === 'sample_sharing.html') return;
+    const parsed = parseFileName(f.name);
+    const key = parsed.lesson != null ? `L${parsed.lesson}` : 'その他';
+    if (!groups[key]) groups[key] = { lesson: parsed.lesson ?? 999, files: [] };
+    groups[key].files.push({ ...f, parsed });
+  });
+  return Object.entries(groups)
+    .sort((a, b) => a[1].lesson - b[1].lesson)
+    .map(([key, val]) => ({ key, ...val }));
+}
+
+function renderGrade(container, repo, files) {
+  const c = COLOR_MAP[repo.color];
+  const groups = groupByLesson(files);
+
+  const lessonHTML = groups.map(g => `
+    <div>
+      <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">${g.key}</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        ${g.files.map(f => `
+          <a href="${repo.pageBase}${f.name}" target="_blank" rel="noopener"
+            class="slide-card bg-white rounded-xl border ${c.border} p-4 flex items-center justify-between gap-3 no-underline">
+            <div class="flex items-center gap-3">
+              <div class="text-2xl">${f.parsed.tag === 'focus' ? '🎯' : f.parsed.tag === 'ura' ? '🔄' : '▶️'}</div>
+              <div>
+                <p class="font-bold text-gray-800 text-sm leading-tight">${f.parsed.label}</p>
+                <p class="text-xs text-gray-400 mt-0.5">${f.name}</p>
+              </div>
+            </div>
+            ${tagBadge(f.parsed.tag)}
+          </a>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  container.innerHTML = `
+    <div>
+      <div class="flex items-center gap-3 mb-4">
+        <div class="flex items-center gap-2 ${c.header} text-white px-4 py-2 rounded-xl font-black text-lg shadow">
+          ${repo.icon} ${repo.label}
+        </div>
+        <span class="text-sm text-gray-400">${files.filter(f => f.name.endsWith('.html') && f.name !== 'sample_sharing.html').length} スライド</span>
+      </div>
+      <div class="space-y-5">${lessonHTML}</div>
+    </div>
+  `;
+}
+
+function renderLoading(container, repo) {
+  const c = COLOR_MAP[repo.color];
+  container.innerHTML = `
+    <div>
+      <div class="flex items-center gap-3 mb-4">
+        <div class="flex items-center gap-2 ${c.header} text-white px-4 py-2 rounded-xl font-black text-lg shadow">
+          ${repo.icon} ${repo.label}
+        </div>
+      </div>
+      <div class="flex items-center gap-3 text-gray-400 py-6">
+        <div class="spinner"></div>
+        <span class="text-sm">読み込み中...</span>
+      </div>
+    </div>
+  `;
+}
+
+function renderError(container, repo, message) {
+  const c = COLOR_MAP[repo.color];
+  container.innerHTML = `
+    <div>
+      <div class="flex items-center gap-3 mb-4">
+        <div class="flex items-center gap-2 ${c.header} text-white px-4 py-2 rounded-xl font-black text-lg shadow">
+          ${repo.icon} ${repo.label}
+        </div>
+      </div>
+      <p class="text-sm text-red-500 bg-red-50 border border-red-200 rounded-xl px-4 py-3">⚠️ ${message}</p>
+    </div>
+  `;
+}
+
+async function loadRepo(repo) {
+  const container = document.getElementById(repo.id);
+  renderLoading(container, repo);
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/SoGood117/${repo.repo}/contents/`,
+      { headers: { 'Accept': 'application/vnd.github+json' } }
+    );
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const files = await res.json();
+    renderGrade(container, repo, files);
+  } catch (e) {
+    renderError(container, repo, `取得できませんでした（${e.message}）`);
+  }
+}
+
+async function loadAll() {
+  const btn = document.getElementById('refresh-btn');
+  const icon = document.getElementById('refresh-icon');
+  btn.disabled = true;
+  icon.textContent = '⏳';
+
+  await Promise.all(REPOS.map(loadRepo));
+
+  const now = new Date();
+  document.getElementById('last-updated').textContent =
+    `最終更新: ${now.toLocaleDateString('ja-JP')} ${now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}`;
+
+  btn.disabled = false;
+  icon.textContent = '🔄';
+}
+
+// 初回読み込み
+loadAll();
+</script>
+</body>
+</html>
