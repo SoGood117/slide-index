@@ -19,6 +19,7 @@
     .tag-section  { background:#eff6ff; color:#1e40af; border:1px solid #bfdbfe; }
     .tag-ura      { background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; }
     .tag-try      { background:#fdf4ff; color:#6b21a8; border:1px solid #e9d5ff; }
+    .tag-ondoku   { background:#fff7ed; color:#9a3412; border:1px solid #fed7aa; }
     .spinner { border:3px solid #e5e7eb; border-top-color:#3b82f6; border-radius:50%; width:28px; height:28px; animation:spin 0.7s linear infinite; }
     @keyframes spin { to { transform:rotate(360deg); } }
   </style>
@@ -102,6 +103,10 @@ function parseFileName(name) {
   let tryLabel = '';
   if (rest.endsWith('_Try')) { tryLabel = '（試）'; rest = rest.replace(/_Try$/, ''); }
 
+  // _ondoku suffix
+  let ondoku = '';
+  if (rest.endsWith('_ondoku')) { ondoku = '（音読シート）'; rest = rest.replace(/_ondoku$/, ''); }
+
   // parse L and S/Focus
   const match = rest.match(/^L(\d+)(?:_(S(\d+)|Focus|Focus_Try))?/);
   if (!match) return { label: base, tag: 'other' };
@@ -120,9 +125,10 @@ function parseFileName(name) {
 
   if (ura)      { tag = 'ura'; }
   if (tryLabel) { tag = 'try'; }
+  if (ondoku)   { tag = 'ondoku'; }
 
   return {
-    label: `${sem}${lesson}${sectionLabel}${ura}${tryLabel}`,
+    label: `${sem}${lesson}${sectionLabel}${ura}${tryLabel}${ondoku}`,
     lesson: parseInt(match[1]),
     tag,
   };
@@ -134,6 +140,7 @@ function tagBadge(tag) {
     section: { cls: 'tag-section', text: 'Section' },
     ura:     { cls: 'tag-ura',     text: '裏面' },
     try:     { cls: 'tag-try',     text: 'Try' },
+    ondoku:  { cls: 'tag-ondoku',  text: '音読' },
   };
   const t = map[tag] || { cls: 'tag-section', text: '' };
   return `<span class="text-xs font-bold px-2 py-0.5 rounded-full ${t.cls}">${t.text}</span>`;
@@ -167,7 +174,7 @@ function renderGrade(container, repo, files) {
           <a href="${repo.pageBase}${f.name}" target="_blank" rel="noopener"
             class="slide-card bg-white rounded-xl border ${c.border} p-4 flex items-center justify-between gap-3 no-underline">
             <div class="flex items-center gap-3">
-              <div class="text-2xl">${f.parsed.tag === 'focus' ? '🎯' : f.parsed.tag === 'ura' ? '🔄' : '▶️'}</div>
+              <div class="text-2xl">${f.parsed.tag === 'focus' ? '🎯' : f.parsed.tag === 'ura' ? '🔄' : f.parsed.tag === 'ondoku' ? '🗣️' : '▶️'}</div>
               <div>
                 <p class="font-bold text-gray-800 text-sm leading-tight">${f.parsed.label}</p>
                 <p class="text-xs text-gray-400 mt-0.5">${f.name}</p>
