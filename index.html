@@ -176,6 +176,7 @@ function groupByLesson(files) {
   files.forEach(f => {
     if (!f.name.endsWith('.html')) return;
     if (f.name === 'sample_sharing.html') return;
+    if (f.name.startsWith('karuta_') || f.name.startsWith('narabe_')) return;
     const parsed = parseFileName(f.name);
     const key = parsed.lesson != null ? `L${parsed.lesson}` : 'その他';
     if (!groups[key]) groups[key] = { lesson: parsed.lesson ?? 999, files: [] };
@@ -308,7 +309,7 @@ function renderOther() {
     <div>
       <div class="flex items-center gap-3 mb-4">
         <div class="flex items-center gap-2 ${c.header} text-white px-4 py-2 rounded-xl font-black text-lg shadow">
-          🎮 その他
+          🎮 600
         </div>
         <span class="text-sm text-gray-400">${OTHER_ITEMS.length} アイテム</span>
       </div>
