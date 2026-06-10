@@ -168,7 +168,8 @@ function parseFileName(name) {
   if (tryLabel) tag='try';
   if (ondoku)   tag='ondoku';
 
-  return { label:`${lesson}${sectionLabel}${ura}${tryLabel}${ondoku}`, lesson:parseInt(match[1]), tag };
+  const sectionNum = (section === 'Focus') ? 100 : match[3] ? parseInt(match[3]) : 0;
+  return { label:`${lesson}${sectionLabel}${ura}${tryLabel}${ondoku}`, lesson:parseInt(match[1]), tag, sectionNum };
 }
 
 function tagBadge(tag) {
@@ -186,7 +187,17 @@ function groupByLesson(files) {
     if (!groups[key]) groups[key]={lesson:parsed.lesson??999,files:[]};
     groups[key].files.push({...f,parsed});
   });
-  return Object.entries(groups).sort((a,b)=>a[1].lesson-b[1].lesson).map(([key,val])=>({key,...val}));
+  const variantRank = tag => ({ura:3, try:2, ondoku:1}[tag] ?? 0);
+  return Object.entries(groups)
+    .sort((a,b) => a[1].lesson - b[1].lesson)
+    .map(([key,val]) => {
+      val.files.sort((a,b) => {
+        const sA = a.parsed.sectionNum ?? 99, sB = b.parsed.sectionNum ?? 99;
+        if (sA !== sB) return sA - sB;
+        return variantRank(a.parsed.tag) - variantRank(b.parsed.tag);
+      });
+      return {key,...val};
+    });
 }
 
 function renderGrade(container, repo, files) {
