@@ -168,7 +168,7 @@ function parseFileName(name) {
   if (tryLabel) tag='try';
   if (ondoku)   tag='ondoku';
 
-  const sectionNum = (section === 'Focus') ? 100 : match[3] ? parseInt(match[3]) : 0;
+  const sectionNum = ondoku ? 200 : (section === 'Focus') ? 100 : match[3] ? parseInt(match[3]) : 0;
   return { label:`${lesson}${sectionLabel}${ura}${tryLabel}${ondoku}`, lesson:parseInt(match[1]), tag, sectionNum };
 }
 
@@ -187,7 +187,7 @@ function groupByLesson(files) {
     if (!groups[key]) groups[key]={lesson:parsed.lesson??999,files:[]};
     groups[key].files.push({...f,parsed});
   });
-  const variantRank = tag => ({ura:3, try:2, ondoku:1}[tag] ?? 0);
+  const variantRank = tag => ({try:1, ondoku:2, ura:3}[tag] ?? 0);
   return Object.entries(groups)
     .sort((a,b) => a[1].lesson - b[1].lesson)
     .map(([key,val]) => {
