@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>タイムアタックタイマー</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2vmin;
+    transition: background 0.8s ease;
+    background: linear-gradient(160deg, #1d4ed8, #1e3a8a);
+    overflow: hidden;
+    user-select: none;
+  }
+  body.zone-yellow { background: linear-gradient(160deg, #f59e0b, #b45309); }
+  body.zone-red    { background: linear-gradient(160deg, #ef4444, #991b1b); }
+  body.zone-up     { background: linear-gradient(160deg, #111827, #000); }
+
+  #title {
+    font-size: clamp(20px, 5vmin, 56px);
+    font-weight: 700;
+    text-shadow: 0 2px 8px rgba(0,0,0,.3);
+    outline: none;
+    border-bottom: 2px dashed rgba(255,255,255,.35);
+    padding: 0 .3em .1em;
+    cursor: text;
+  }
+  #title:focus { border-bottom-color: #fff; }
+
+  #display {
+    font-size: clamp(80px, 28vmin, 340px);
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: .03em;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 6px 24px rgba(0,0,0,.35);
+  }
+  #display.pulse { animation: pulse 1s infinite; }
+  @keyframes pulse {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.12); }
+    100% { transform: scale(1); }
+  }
+  #display.timeup {
+    font-size: clamp(60px, 20vmin, 240px);
+    animation: flash 0.6s infinite;
+  }
+  @keyframes flash {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: .25; }
+  }
+
+  .row { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.5vmin; }
+
+  button {
+    font-family: inherit;
+    font-weight: 700;
+    font-size: clamp(14px, 2.6vmin, 24px);
+    padding: .6em 1.4em;
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    background: rgba(255,255,255,.92);
+    color: #1f2937;
+    box-shadow: 0 3px 10px rgba(0,0,0,.25);
+    transition: transform .1s;
+  }
+  button:active { transform: scale(.94); }
+  button.primary { background: #22c55e; color: #fff; }
+  button.ghost {
+    background: rgba(255,255,255,.18);
+    color: #fff;
+    border: 2px solid rgba(255,255,255,.6);
+  }
+
+  #hint {
+    position: fixed;
+    bottom: 1.2vmin;
+    font-size: clamp(10px, 1.8vmin, 15px);
+    opacity: .65;
+  }
+</style>
+</head>
+<body>
+
+  <div id="title" contenteditable="true" spellcheck="false">タイムアタック！</div>
+  <div id="display">10:00</div>
+
+  <div class="row">
+    <button class="primary" id="startBtn">▶ スタート</button>
+    <button id="resetBtn">↺ リセット</button>
+  </div>
+  <div class="row">
+    <button class="ghost" data-min="5">5分</button>
+    <button class="ghost" data-min="10">10分</button>
+    <button class="ghost" data-min="15">15分</button>
+    <button class="ghost" data-min="20">20分</button>
+    <button class="ghost" id="minusBtn">−1分</button>
+    <button class="ghost" id="plusBtn">＋1分</button>
+  </div>
+
+  <div id="hint">スペース＝スタート/一時停止　R＝リセット　タイトルはクリックで編集できます</div>
+
+<script>
+(() => {
+  const display  = document.getElementById('display');
+  const startBtn = document.getElementById('startBtn');
+  const resetBtn = document.getElementById('resetBtn');
+
+  let totalSec  = 10 * 60;   // 設定時間
+  let remainSec = totalSec;  // 残り時間
+  let endTime   = null;      // 動作中の終了時刻（端末の時計基準でズレ防止）
+  let timerId   = null;
+  let lastBeepSec = null;
+
+  // ---- 音（Web Audio API・外部ファイル不要）----
+  let audioCtx = null;
+  function beep(freq, dur, vol = 0.3, when = 0) {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const t = audioCtx.currentTime + when;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.frequency.value = freq;
+    osc.type = 'sine';
+    gain.gain.setValueAtTime(vol, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start(t);
+    osc.stop(t + dur);
+  }
+  function chime() { // 終了チャイム（キンコン的なやつ）
+    beep(880, 0.5, 0.35, 0);
+    beep(660, 0.5, 0.35, 0.45);
+    beep(880, 0.5, 0.35, 0.9);
+    beep(1100, 1.0, 0.35, 1.35);
+  }
+
+  // ---- 表示更新 ----
+  function fmt(s) {
+    const m = Math.floor(s / 60), r = s % 60;
+    return String(m).padStart(2, '0') + ':' + String(r).padStart(2, '0');
+  }
+  function render() {
+    display.textContent = fmt(Math.max(0, remainSec));
+    document.body.classList.remove('zone-yellow', 'zone-red', 'zone-up');
+    display.classList.remove('pulse', 'timeup');
+
+    if (remainSec <= 0 && endTime !== null) {
+      document.body.classList.add('zone-up');
+      display.textContent = 'TIME UP!';
+      display.classList.add('timeup');
+      return;
+    }
+    const ratio = remainSec / totalSec;
+    if (remainSec <= 10 || ratio <= 0.1) {
+      document.body.classList.add('zone-red');
+      if (running()) display.classList.add('pulse');
+    } else if (ratio <= 0.5) {
+      document.body.classList.add('zone-yellow');
+    }
+  }
+
+  function running() { return timerId !== null; }
+
+  // ---- タイマー制御 ----
+  function tick() {
+    remainSec = Math.ceil((endTime - Date.now()) / 1000);
+    if (remainSec <= 10 && remainSec > 0 && remainSec !== lastBeepSec) {
+      lastBeepSec = remainSec;
+      beep(1000, 0.12, 0.25); // ラスト10秒のカウント音
+    }
+    if (remainSec <= 0) {
+      remainSec = 0;
+      stopTick();
+      chime();
+    }
+    render();
+  }
+  function startTick() {
+    if (running() || remainSec <= 0) return;
+    endTime = Date.now() + remainSec * 1000;
+    timerId = setInterval(tick, 200);
+    startBtn.textContent = '⏸ 一時停止';
+    beep(660, 0.15, 0.2); // スタート音（音の許可取りも兼ねる）
+  }
+  function stopTick() {
+    clearInterval(timerId);
+    timerId = null;
+    startBtn.textContent = '▶ スタート';
+  }
+  function reset(sec) {
+    stopTick();
+    endTime = null;
+    lastBeepSec = null;
+    if (sec !== undefined) totalSec = sec;
+    remainSec = totalSec;
+    render();
+  }
+
+  // ---- イベント ----
+  startBtn.addEventListener('click', () => running() ? (stopTick(), render()) : startTick());
+  resetBtn.addEventListener('click', () => reset());
+  document.getElementById('plusBtn').addEventListener('click', () => {
+    totalSec += 60; remainSec += 60;
+    if (running()) endTime += 60000;
+    render();
+  });
+  document.getElementById('minusBtn').addEventListener('click', () => {
+    if (totalSec <= 60) return;
+    totalSec -= 60; remainSec = Math.max(1, remainSec - 60);
+    if (running()) endTime -= 60000;
+    render();
+  });
+  document.querySelectorAll('[data-min]').forEach(btn =>
+    btn.addEventListener('click', () => reset(Number(btn.dataset.min) * 60))
+  );
+  document.addEventListener('keydown', (e) => {
+    if (e.target.id === 'title') return; // タイトル編集中は無視
+    if (e.code === 'Space') { e.preventDefault(); startBtn.click(); }
+    if (e.key === 'r' || e.key === 'R') reset();
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
