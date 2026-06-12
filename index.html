@@ -43,6 +43,7 @@
       <button onclick="switchTab('grade-3')"    id="tab-grade-3"    class="tab-btn px-5 py-2.5 text-sm font-bold rounded-t-xl border-b-2 whitespace-nowrap">📕 3年生</button>
       <button onclick="switchTab('grade-600')"  id="tab-grade-600"  class="tab-btn px-5 py-2.5 text-sm font-bold rounded-t-xl border-b-2 whitespace-nowrap">📙 600</button>
       <button onclick="switchTab('grade-misc')" id="tab-grade-misc" class="tab-btn px-5 py-2.5 text-sm font-bold rounded-t-xl border-b-2 whitespace-nowrap">📂 その他</button>
+      <button onclick="switchTab('grade-timer')" id="tab-grade-timer" class="tab-btn px-5 py-2.5 text-sm font-bold rounded-t-xl border-b-2 whitespace-nowrap">⏱ タイマー</button>
     </div>
   </header>
 
@@ -52,6 +53,7 @@
     <div id="content-grade-3"    class="tab-content"></div>
     <div id="content-grade-600"  class="tab-content"></div>
     <div id="content-grade-misc" class="tab-content"></div>
+    <div id="content-grade-timer" class="tab-content"></div>
   </main>
 
   <footer class="text-center text-xs text-gray-400 py-6">
@@ -82,6 +84,9 @@ const ITEMS_600_GAME = [
 const ITEMS_MISC = [
   { label:'代名詞', sub:'Pronouns ｜ 主格 / 所有格 / 目的格 / 所有代名詞', url:'https://sogood117.github.io/1nen-slides/pronouns_table.html', icon:'📊' },
 ];
+const ITEMS_TIMER = [
+  { label:'タイムアタックタイマー', sub:'授業用カウントダウン ｜ 色変化＋ラスト10秒演出＋チャイム', url:'https://sogood117.github.io/slide-index/timer.html', icon:'⏱' },
+];
 
 const TAB_STYLES = {
   'grade-1':    { active:'border-blue-500   text-blue-700   bg-blue-50',   inactive:'border-transparent text-gray-500 bg-white hover:text-gray-700' },
@@ -89,10 +94,11 @@ const TAB_STYLES = {
   'grade-3':    { active:'border-red-500    text-red-700    bg-red-50',    inactive:'border-transparent text-gray-500 bg-white hover:text-gray-700' },
   'grade-600':  { active:'border-orange-500 text-orange-700 bg-orange-50', inactive:'border-transparent text-gray-500 bg-white hover:text-gray-700' },
   'grade-misc': { active:'border-purple-500 text-purple-700 bg-purple-50', inactive:'border-transparent text-gray-500 bg-white hover:text-gray-700' },
+  'grade-timer':{ active:'border-teal-500   text-teal-700   bg-teal-50',   inactive:'border-transparent text-gray-500 bg-white hover:text-gray-700' },
 };
 const HEADER_BG = {
   'grade-1':'bg-blue-600', 'grade-2':'bg-green-600', 'grade-3':'bg-red-600',
-  'grade-600':'bg-orange-500', 'grade-misc':'bg-purple-600',
+  'grade-600':'bg-orange-500', 'grade-misc':'bg-purple-600', 'grade-timer':'bg-teal-600',
 };
 const CARD_BORDER = { blue:'border-blue-200', green:'border-green-200', red:'border-red-200' };
 
@@ -118,8 +124,9 @@ function switchTab(tabId) {
 
 async function loadTab(tabId) {
   loadedTabs.add(tabId);
-  if (tabId === 'grade-600')  { render600();  return; }
-  if (tabId === 'grade-misc') { renderMisc(); return; }
+  if (tabId === 'grade-600')   { render600();   return; }
+  if (tabId === 'grade-misc')  { renderMisc();  return; }
+  if (tabId === 'grade-timer') { renderTimer(); return; }
 
   const repo = REPOS.find(r => r.id === tabId);
   const container = document.getElementById(`content-${tabId}`);
@@ -268,6 +275,19 @@ function renderMisc() {
   container.innerHTML = `
     <div class="flex items-center gap-3 mb-6">
       <div class="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-xl font-black text-lg shadow">📂 その他</div>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">${cards}</div>
+  `;
+}
+
+// ── タイマータブ ──────────────────────────────────────────────────
+function renderTimer() {
+  const container = document.getElementById('content-grade-timer');
+  const cards = ITEMS_TIMER.map(item=>staticCard(item,'border-teal-200','bg-teal-100 text-teal-700 border border-teal-200','ツール')).join('');
+  container.innerHTML = `
+    <div class="flex items-center gap-3 mb-6">
+      <div class="flex items-center gap-2 bg-teal-600 text-white px-4 py-2 rounded-xl font-black text-lg shadow">⏱ タイマー</div>
+      <span class="text-sm text-gray-400">${ITEMS_TIMER.length} アイテム</span>
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">${cards}</div>
   `;
