@@ -83,9 +83,12 @@ const ITEMS_600_GAME = [
   { label:'並べ替えクイズ',        sub:'600文型② ｜ 日本語→英文の語順', url:'https://sogood117.github.io/1nen-slides/narabe_600bunkei2.html',       icon:'🧩' },
   { label:'並べ替えクイズ',        sub:'600不定詞②③ ｜ 日本語→英文の語順', url:'https://sogood117.github.io/1nen-slides/narabe_600futeishi23.html',    icon:'🧩' },
 ];
+// 全商英検３級（全商英語検定試験問題集の解答など）
+const ITEMS_ZENSHO3 = [
+  { label:'文の区切り・強勢 答え合わせ', sub:'②文の区切り(大問1-5)・③文の強勢(大問1-4) ｜ クリックで答え表示', url:'https://sogood117.github.io/slide-index/hatsuon_kugiri_kyousei_answer.html', icon:'🔊' },
+];
 const ITEMS_MISC = [
   { label:'代名詞', sub:'Pronouns ｜ 主格 / 所有格 / 目的格 / 所有代名詞', url:'https://sogood117.github.io/1nen-slides/pronouns_table.html', icon:'📊' },
-  { label:'文の区切り・強勢 答え合わせ', sub:'リスニング/発音 ｜ 区切り(大問1-5)・強勢(大問1-4) クリックで答え表示', url:'https://sogood117.github.io/slide-index/hatsuon_kugiri_kyousei_answer.html', icon:'🔊' },
 ];
 const ITEMS_TIMER = [
   { label:'TIMER', sub:'授業用カウントダウン ｜ 色変化＋ラスト10秒演出＋チャイム', url:'https://sogood117.github.io/slide-index/timer.html', icon:'⏱' },
@@ -274,12 +277,24 @@ function render600() {
 // ── その他タブ ────────────────────────────────────────────────────
 function renderMisc() {
   const container = document.getElementById('content-grade-misc');
-  const cards = ITEMS_MISC.map(item=>staticCard(item,'border-purple-200','bg-purple-100 text-purple-700 border border-purple-200','参考')).join('');
+  const zensho3HTML = ITEMS_ZENSHO3.map(item=>staticCard(item,'border-indigo-200','bg-indigo-100 text-indigo-700 border border-indigo-200','全商英検3級')).join('');
+  const miscHTML    = ITEMS_MISC.map(item=>staticCard(item,'border-purple-200','bg-purple-100 text-purple-700 border border-purple-200','参考')).join('');
   container.innerHTML = `
-    <div class="flex items-center gap-3 mb-6">
-      <div class="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-xl font-black text-lg shadow">📂 その他</div>
+    <div class="space-y-8">
+      <div>
+        <div class="flex items-center gap-3 mb-4">
+          <div class="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-xl font-black text-lg shadow">🎓 全商英検３級</div>
+          <span class="text-sm text-gray-400">${ITEMS_ZENSHO3.length} アイテム</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">${zensho3HTML}</div>
+      </div>
+      <div>
+        <div class="flex items-center gap-3 mb-4">
+          <div class="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-xl font-black text-lg shadow">📊 参考</div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">${miscHTML}</div>
+      </div>
     </div>
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">${cards}</div>
   `;
 }
 
