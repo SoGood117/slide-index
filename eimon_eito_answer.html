@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>全商英語検定試験問題集 解答｜聞き方(2) 英問英答</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap');
+  body { font-family:'Noto Sans JP', sans-serif; }
+  .en { font-family:'Georgia','Times New Roman',serif; }
+  .qcard { transition: box-shadow .15s ease; }
+  .opt { transition: background .15s ease, border-color .15s ease; }
+  .reveal { display:none; }
+  .reveal.show { display:block; }
+</style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800">
+
+<header class="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-sm">
+  <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+    <div>
+      <p class="text-xs sm:text-sm font-bold text-indigo-500">🎓 全商英語検定試験問題集 解答</p>
+      <h1 class="text-xl sm:text-2xl font-black">💬 聞き方(2) 英問英答 <span class="text-slate-400 font-bold text-base">答え合わせ</span></h1>
+      <p class="text-xs text-slate-400 mt-0.5">質問と①②③を読んで予想 → カードをタップすると正解が緑に光ります</p>
+    </div>
+    <div class="flex gap-2 shrink-0">
+      <button onclick="toggleAll(true)"  class="bg-blue-500 hover:bg-blue-600 text-white text-xs sm:text-sm font-bold px-3 py-2 rounded-xl">全部表示</button>
+      <button onclick="toggleAll(false)" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs sm:text-sm font-bold px-3 py-2 rounded-xl">全部隠す</button>
+    </div>
+  </div>
+  <div class="max-w-4xl mx-auto px-4 pb-3 flex gap-1 overflow-x-auto" id="tabbar"></div>
+</header>
+
+<main class="max-w-4xl mx-auto px-4 py-6" id="main"></main>
+
+<footer class="text-center text-xs text-slate-400 py-6 px-4 leading-relaxed">
+  質問が読まれ、①②③の応答から最も適切なものを選ぶ問題です。緑＝正解。<br>
+  ＝全商英語検定試験問題集（3級）実践演習 p.20〜21／CD A 30〜57 準拠＝
+</footer>
+
+<script>
+// ─────────── データ ───────────
+// q=読まれる質問文 / opts=[①,②,③] / a=正解番号(1-3) / r=ポイント
+const SETS = [
+  { title:'実践演習 1', cd:'CD A 30〜36', items:[
+    { q:"Can I borrow your dictionary?", opts:["Yes, I can.","Sure, go ahead.","My dictionary was expensive."], a:2, r:"Can I ~?（許可を求める）→「どうぞ」と応じる" },
+    { q:"Would you like some more tea?", opts:["Yes, thanks.","You're welcome.","No, I didn't drink tea."], a:1, r:"紅茶のおかわりを勧められて、感謝してお願いする" },
+    { q:"May I help you?", opts:["Yes, you may.","Yes, I do.","Yes, I'm looking for a T-shirt."], a:3, r:"May I help you?＝「いらっしゃいませ」→ 客の返事" },
+    { q:"I'm sorry I didn't call you yesterday.", opts:["Don't worry about it.","You have a wrong number.","Please call me Ken."], a:1, r:"電話しなかったことをわびている → 気にしないで" },
+    { q:"I have a headache.", opts:["That's too bad.","Your head is big.","Sounds great."], a:1, r:"「頭痛がする」→「それはいけませんね（お気の毒に）」" },
+  ]},
+  { title:'実践演習 2', cd:'CD A 37〜43', items:[
+    { q:"Will you open the window?", opts:["Sure, no problem.","Oh, thank you.","Not at all."], a:1, r:"Will you ~?（依頼）→ 快く引き受ける" },
+    { q:"Why don't we eat out for dinner today?", opts:["Because I don't want to eat dinner.","No, they don't.","Yes, that's fine with me."], a:3, r:"Why don't we ~?（勧誘）→ 承諾する" },
+    { q:"Your watch is great!", opts:["My father watches me.","Thank you. I like it very much.","What a great day!"], a:2, r:"腕時計をほめられて → お礼を言う" },
+    { q:"Do you mind if I open the window?", opts:["Yes, please.","So am I.","No, not at all."], a:3, r:"Do you mind if ~?→「かまわない」なら no で答える" },
+    { q:"I'd like to stay one night in this hotel.", opts:["May I take your order?","What kind of room would you like?","Check out, please."], a:2, r:"ホテルで1泊したい客に、従業員が返す言葉" },
+  ]},
+  { title:'実践演習 3', cd:'CD A 44〜50', items:[
+    { q:"Will it be a sunny day tomorrow?", opts:["Yes, you will.","Yes, it was.","I hope so."], a:3, r:"Will it ~?（未来を尋ねる）→「そうだといい」" },
+    { q:"When did you go to the department store?", opts:["At noon.","Tomorrow morning.","In a few minutes."], a:1, r:"When＝いつ → 過去の時を答える" },
+    { q:"What's wrong with your bicycle?", opts:["I think so.","It's raining.","It needs some oil."], a:3, r:"What's wrong with ~?＝どこが悪い → 不具合を具体的に" },
+    { q:"Have you heard from him since then?", opts:["He looks like a shopkeeper.","Yes, I got a letter from him three days ago.","No, he never has."], a:2, r:"hear from ~＝連絡をもらう → Yesで連絡があったと説明" },
+    { q:"How far is it from your house to the gasoline station?", opts:["By car.","About half a kilometer.","Near the park."], a:2, r:"How far ~?＝距離 → 具体的な距離を答える" },
+  ]},
+  { title:'実践演習 4', cd:'CD A 51〜57', items:[
+    { q:"Are you ready to order?", opts:["Not so late.","No, not yet.","Never mind."], a:2, r:"Are you ready to order?＝ご注文は？ →「まだです（not yet）」" },
+    { q:"When did you get back from Italy?", opts:["For one week.","Until tomorrow.","Yesterday morning."], a:3, r:"When＝いつ → 過去の時を答える" },
+    { q:"Can I park my bike here?", opts:["I'm afraid you can't.","You can play tennis.","I'm sorry to hear that."], a:1, r:"Can I ~?（許可）＋ I'm afraid ~＝ていねいに断る" },
+    { q:"How often do you meet your uncle in London?", opts:["By email.","Once a year.","Two months ago."], a:2, r:"How often＝頻度 →「1年に1回」" },
+    { q:"Why don't you have some more fruit?", opts:["Thanks, I will.","You're welcome.","Yes, you may."], a:1, r:"Why don't you ~?＝「～してはどうですか」（提案）→「そうします」" },
+  ]},
+];
+
+const CIRC = ['','①','②','③','④','⑤'];
+const AB   = ['a','b','c','d','e','f','g'];
+let cur = 0;
+
+// ─────────── タブ ───────────
+const TAB_ON  = 'border-blue-500 text-blue-700 bg-blue-50';
+const TAB_OFF = 'border-transparent text-slate-500 bg-white hover:text-slate-700';
+function renderTabs(){
+  document.getElementById('tabbar').innerHTML = SETS.map((s,i)=>
+    `<button onclick="switchTab(${i})" id="tab-${i}"
+       class="tabbtn shrink-0 px-4 py-2 text-sm font-bold rounded-t-xl border-b-2 ${i===cur?TAB_ON:TAB_OFF}">
+       大問${i+1}</button>`).join('');
+}
+function switchTab(i){ cur=i; renderTabs(); renderMain(); }
+
+// ─────────── 本体 ───────────
+function renderMain(){
+  const s = SETS[cur];
+  document.getElementById('main').innerHTML = `
+    <div class="flex items-center gap-2 mb-4">
+      <span class="bg-indigo-600 text-white px-3 py-1 rounded-lg font-black text-sm">${s.title}</span>
+      <span class="en text-xs font-bold text-slate-400">${s.cd}</span>
+    </div>
+    <div class="space-y-3">
+      ${s.items.map((it,ii)=>{
+        const id = `${cur}-${ii}`;
+        const opts = it.opts.map((o,oi)=>{
+          const n = oi+1;
+          return `<div class="opt flex items-start gap-2 px-3 py-1.5 rounded-lg border border-transparent" data-n="${n}" id="opt-${id}-${n}">
+                    <span class="font-black text-slate-400 shrink-0">${CIRC[n]}</span>
+                    <span class="en text-base sm:text-lg">${o}</span>
+                    <span class="ml-auto text-emerald-600 font-black opacity-0 shrink-0" id="chk-${id}-${n}">✓ 正解</span>
+                  </div>`;
+        }).join('');
+        return `
+        <div class="qcard bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <button onclick="toggle('${id}')" class="w-full text-left px-4 py-3 hover:bg-slate-50">
+            <div class="flex items-start gap-3">
+              <span class="text-slate-400 font-black text-sm mt-1 w-4 shrink-0">${AB[ii]}.</span>
+              <div class="flex-1">
+                <p class="text-base sm:text-lg leading-relaxed mb-2">
+                  <span class="en font-black text-sky-600 mr-1">Q :</span><span class="en">${it.q}</span>
+                </p>
+                <div class="space-y-1">${opts}</div>
+              </div>
+              <span class="text-slate-300 text-xs mt-1 shrink-0" id="hint-${id}">タップで正解 ▾</span>
+            </div>
+          </button>
+          <div class="reveal px-4 pb-3 pl-11" id="rev-${id}">
+            <div class="bg-emerald-50 border border-emerald-100 rounded-lg px-3 py-2 text-sm flex items-start gap-2">
+              <span class="font-black text-emerald-600 shrink-0">答え ${CIRC[it.a]}</span>
+              <span class="text-slate-600 mt-0.5">${it.r}</span>
+            </div>
+          </div>`;
+      }).join('')}
+    </div>`;
+}
+
+// ─────────── 操作 ───────────
+function setRevealed(id, on){
+  const it = SETS[+id.split('-')[0]].items[+id.split('-')[1]];
+  document.getElementById(`rev-${id}`).classList.toggle('show', on);
+  const h = document.getElementById(`hint-${id}`);
+  if(h) h.style.visibility = on ? 'hidden' : 'visible';
+  // 正解の選択肢をハイライト
+  const opt = document.getElementById(`opt-${id}-${it.a}`);
+  const chk = document.getElementById(`chk-${id}-${it.a}`);
+  if(opt){ opt.classList.toggle('bg-emerald-50', on); opt.classList.toggle('border-emerald-300', on); }
+  if(chk){ chk.style.opacity = on ? '1' : '0'; }
+}
+function toggle(id){
+  const on = !document.getElementById(`rev-${id}`).classList.contains('show');
+  setRevealed(id, on);
+}
+function toggleAll(on){
+  document.querySelectorAll('.reveal').forEach(r=> setRevealed(r.id.replace('rev-',''), on));
+}
+
+renderTabs();
+renderMain();
+</script>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>全商英語検定試験問題集 解答｜聞き方(1) 絵の説明</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap');
+  body { font-family:'Noto Sans JP', sans-serif; }
+  .en { font-family:'Georgia','Times New Roman',serif; }
+  .qcard { transition: box-shadow .15s ease; }
+  .reveal { display:none; }
+  .reveal.show { display:block; }
+  .ansnum { font-size:1.35em; }
+</style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800">
+
+<header class="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-sm">
+  <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+    <div>
+      <p class="text-xs sm:text-sm font-bold text-indigo-500">🎓 全商英語検定試験問題集 解答</p>
+      <h1 class="text-xl sm:text-2xl font-black">🖼 聞き方(1) 絵の説明 <span class="text-slate-400 font-bold text-base">答え合わせ</span></h1>
+      <p class="text-xs text-slate-400 mt-0.5">対話文をクリック（タップ）すると、正解の番号と聞きとりのポイントが出ます</p>
+    </div>
+    <div class="flex gap-2 shrink-0">
+      <button onclick="toggleAll(true)"  class="bg-blue-500 hover:bg-blue-600 text-white text-xs sm:text-sm font-bold px-3 py-2 rounded-xl">全部表示</button>
+      <button onclick="toggleAll(false)" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs sm:text-sm font-bold px-3 py-2 rounded-xl">全部隠す</button>
+    </div>
+  </div>
+  <div class="max-w-4xl mx-auto px-4 pb-3 flex gap-1 overflow-x-auto" id="tabbar"></div>
+</header>
+
+<main class="max-w-4xl mx-auto px-4 py-6" id="main"></main>
+
+<footer class="text-center text-xs text-slate-400 py-6 px-4 leading-relaxed">
+  選択肢①②③は問題集の「絵」です。ここでは正解の番号と、聞きとりのカギになる英語だけを表示しています。<br>
+  ＝全商英語検定試験問題集（3級）実践演習 p.14〜17／CD A 02〜29 準拠＝
+</footer>
+
+<script>
+// ─────────── データ ───────────
+// lines: [ [話者, セリフ] … ]  / a: 正解の絵番号(1-3) / r: 聞きとりのポイント
+const SETS = [
+  { title:'実践演習 1', cd:'CD A 02〜08', items:[
+    { lines:[['Woman',"May I help you?"],['Man',"Yes, please. I'm looking for a tie."]], a:2, r:"I'm looking for a tie.（ネクタイを探している）→ ネクタイを選んでいる絵" },
+    { lines:[['Woman',"Where is the post office?"],['Man',"It's between the coffee shop and the bookstore."]], a:1, r:"郵便局が「喫茶店と書店の間」にある絵" },
+    { lines:[['Woman',"How did you get to the airport?"],['Man',"I went there by bus."]], a:2, r:"交通手段は by bus（バス）" },
+    { lines:[['Woman',"What are you going to do during this summer vacation?"],['Man',"I'm going to climb Mt. Fuji."]], a:3, r:"climb Mt. Fuji → 登山をしている絵" },
+    { lines:[['Woman',"I have to go. See you."],['Man',"O.K. See you later."]], a:3, r:"See you (later). は別れのときのあいさつの場面" },
+  ]},
+  { title:'実践演習 2', cd:'CD A 09〜15', items:[
+    { lines:[['Man',"What's the matter? Are you sick?"],['Woman',"Yes, I have a headache. Maybe I have a fever."]], a:1, r:"headache（頭痛）・fever（熱）＝具合の悪い部分を聞きとる" },
+    { lines:[['Man',"I can't find the newspaper. Do you know where it is?"],['Woman',"I saw it under the chair."]], a:1, r:"新聞は under the chair（いすの下）" },
+    { lines:[['Man',"Let me introduce myself. I'm Tom."],['Woman',"Hi, Tom. I'm Mary. Glad to meet you."]], a:1, r:"2人が自己紹介をしている場面" },
+    { lines:[['Man',"What do you do?"],['Woman',"I'm a nurse. I work at Chicago City Hospital."]], a:3, r:"職業は a nurse（看護師）" },
+    { lines:[['Man',"Which do you like, tea or coffee?"],['Woman',"Oh, I like both."]], a:2, r:"I like both. → 紅茶とコーヒーの両方がある絵" },
+  ]},
+  { title:'実践演習 3', cd:'CD A 16〜22', items:[
+    { lines:[['Woman',"What's the matter?"],['Man',"I slipped on the road and broke my arm."]], a:2, r:"slipped on the road＋broke my arm＝道路で転んで腕を骨折" },
+    { lines:[['Man',"Which T-shirt is yours?"],['Woman',"The middle one with a big ribbon on it."]], a:3, r:"the middle one（真ん中）＋ a big ribbon（大きいリボン付き）" },
+    { lines:[['Woman',"What did you do last Sunday?"],['Man',"I went to Tokyo with my father. I was surprised to see many tall buildings."]], a:2, r:"many tall buildings（たくさんの高いビル）を見て驚いた絵" },
+    { lines:[['Man',"I heard you laughing a lot."],['Woman',"I watched TV and it was very funny."]], a:1, r:"〈hear＋O＋doing〉＋ I watched TV → テレビを見て笑っている絵" },
+    { lines:[['Man',"Which is the best box for these books?"],['Woman','"A" is too small, "B" is too big, so "C" is the best for them.']], a:2, r:"A＝最小・B＝最大・C＝その中間。真ん中の大きさの箱を選ぶ" },
+  ]},
+  { title:'実践演習 4', cd:'CD A 23〜29', items:[
+    { lines:[['Woman',"What do you want to be in the future?"],['Man',"I want to be a mechanic."]], a:2, r:"mechanic＝整備士" },
+    { lines:[['Man',"Where are my glasses?"],['Woman',"They are on the table in the kitchen."]], a:1, r:"glasses＝めがね（glass「コップ」の複数ではない）" },
+    { lines:[['Woman',"Who is your English teacher?"],['Man',"It's the lady wearing a jacket. She's carrying a bag."]], a:3, r:"ジャケットを着て、かばんを持っている女性" },
+    { lines:[['Man',"What time shall we meet tomorrow, Emily?"],['Woman',"How about half past ten in front of the station?"]], a:2, r:"half past ten＝10時30分／ in front of the station＝駅前で" },
+    { lines:[['Woman',"Which vase is bigger, A or B?"],['Man',"A is bigger than B. Some flowers are already in it."]], a:1, r:"AがBより大きく、Aにはすでに花が数本入っている" },
+  ]},
+];
+
+const CIRC = ['','①','②','③','④','⑤'];
+const AB   = ['a','b','c','d','e','f','g'];
+let cur = 0;
+
+// ─────────── タブ ───────────
+const TAB_ON  = 'border-blue-500 text-blue-700 bg-blue-50';
+const TAB_OFF = 'border-transparent text-slate-500 bg-white hover:text-slate-700';
+function renderTabs(){
+  document.getElementById('tabbar').innerHTML = SETS.map((s,i)=>
+    `<button onclick="switchTab(${i})" id="tab-${i}"
+       class="tabbtn shrink-0 px-4 py-2 text-sm font-bold rounded-t-xl border-b-2 ${i===cur?TAB_ON:TAB_OFF}">
+       大問${i+1}</button>`).join('');
+}
+function switchTab(i){ cur=i; renderTabs(); renderMain(); }
+
+// ─────────── 本体 ───────────
+function renderMain(){
+  const s = SETS[cur];
+  document.getElementById('main').innerHTML = `
+    <div class="flex items-center gap-2 mb-4">
+      <span class="bg-indigo-600 text-white px-3 py-1 rounded-lg font-black text-sm">${s.title}</span>
+      <span class="en text-xs font-bold text-slate-400">${s.cd}</span>
+    </div>
+    <div class="space-y-3">
+      ${s.items.map((it,ii)=>{
+        const id = `${cur}-${ii}`;
+        const dlg = it.lines.map(([who,txt])=>{
+          const color = who==='Woman' ? 'text-rose-500' : 'text-sky-600';
+          const label = who==='Woman' ? 'W' : 'M';
+          return `<p class="text-base sm:text-lg leading-relaxed">
+                    <span class="en font-black ${color} mr-1">${label} :</span>
+                    <span class="en">${txt}</span></p>`;
+        }).join('');
+        return `
+        <div class="qcard bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <button onclick="toggle('${id}')" class="w-full text-left px-4 py-3 hover:bg-slate-50 flex items-start gap-3">
+            <span class="text-slate-400 font-black text-sm mt-1 w-4 shrink-0">${AB[ii]}.</span>
+            <div class="flex-1">${dlg}</div>
+            <span class="text-slate-300 text-xs mt-1 shrink-0" id="hint-${id}">タップで答え ▾</span>
+          </button>
+          <div class="reveal px-4 pb-3 pl-11" id="rev-${id}">
+            <div class="bg-emerald-50 border border-emerald-100 rounded-lg px-3 py-2 text-sm flex items-start gap-2">
+              <span class="font-black text-emerald-600 ansnum shrink-0">答え ${CIRC[it.a]}</span>
+              <span class="text-slate-600 mt-0.5">${it.r}</span>
+            </div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+// ─────────── 操作 ───────────
+function setRevealed(id, on){
+  document.getElementById(`rev-${id}`).classList.toggle('show', on);
+  const h = document.getElementById(`hint-${id}`);
+  if(h) h.style.visibility = on ? 'hidden' : 'visible';
+}
+function toggle(id){
+  const on = !document.getElementById(`rev-${id}`).classList.contains('show');
+  setRevealed(id, on);
+}
+function toggleAll(on){
+  document.querySelectorAll('.reveal').forEach(r=> setRevealed(r.id.replace('rev-',''), on));
+}
+
+renderTabs();
+renderMain();
+</script>
+</body>
+</html>
