@@ -35,6 +35,7 @@
     .box-s { background:#fef3c7; border-color:#f59e0b; color:#92400e; }
     .box-v { background:#dbeafe; border-color:#3b82f6; color:#1e40af; }
     .box-o { background:#dcfce7; border-color:#22c55e; color:#166534; }
+    .box-m { background:#f3f4f6; border-color:#9ca3af; color:#4b5563; }
   </style>
 </head>
 <body class="bg-gradient-to-br from-sky-50 to-indigo-100 min-h-screen overflow-x-hidden">
@@ -103,7 +104,39 @@
     </div>
   </section>
 
-  <!-- ===== スライド4：ルール ===== -->
+  <!-- ===== スライド4：SVOのうしろに「かざり」 ===== -->
+  <section class="slide flex-col items-center justify-center min-h-screen p-6 text-center">
+    <p class="text-rose-500 font-bold mb-1 text-lg">✨ レベルアップ ✨</p>
+    <h2 class="text-2xl font-black text-indigo-900 mb-2">SVOのうしろに「かざり」をつけよう</h2>
+    <p class="text-gray-600 text-sm mb-5 leading-relaxed">
+      文の主役は <b class="text-indigo-700">S・V・O</b> の3つ。<br>
+      「どこで」「いつ」などは、<b class="text-rose-600">かならず うしろに つけたし！</b>
+    </p>
+
+    <div class="flex flex-wrap items-center justify-center gap-2 mb-5">
+      <div class="box-s border-4 rounded-xl px-3 py-2 shadow text-sm font-bold">S<br>だれが</div>
+      <div class="box-v border-4 rounded-xl px-3 py-2 shadow text-sm font-bold">V<br>する</div>
+      <div class="box-o border-4 rounded-xl px-3 py-2 shadow text-sm font-bold">O<br>なにを</div>
+      <div class="text-xl text-gray-400 font-black">＋</div>
+      <div class="box-m border-4 rounded-xl px-3 py-2 shadow text-sm font-bold">どこで<br>場所</div>
+      <div class="text-lg text-gray-400 font-black">→</div>
+      <div class="box-m border-4 rounded-xl px-3 py-2 shadow text-sm font-bold">いつ<br>時</div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow p-5 max-w-lg w-full">
+      <p class="text-lg sm:text-2xl font-black leading-relaxed">
+        <span class="text-amber-600">I</span>
+        <span class="text-blue-600">play</span>
+        <span class="text-green-600">soccer</span>
+        <span class="text-gray-500">in the park</span>
+        <span class="text-gray-500">every day</span>.
+      </p>
+      <p class="text-sm text-gray-500 mt-2">私は　毎日　公園で　サッカーを　する</p>
+      <p class="text-xs bg-rose-50 text-rose-600 font-bold mt-3 inline-block px-3 py-1 rounded-full">かざりは「場所 → 時」のじゅんばん！</p>
+    </div>
+  </section>
+
+  <!-- ===== スライド5：ルール ===== -->
   <section class="slide flex-col items-center justify-center min-h-screen p-6 text-center">
     <div class="text-5xl mb-3">🕹</div>
     <h2 class="text-2xl font-black text-indigo-900 mb-6">あそびかた</h2>
@@ -121,8 +154,8 @@
     </button>
   </section>
 
-  <!-- ===== スライド5：ゲーム本体 ===== -->
-  <section class="slide flex-col min-h-screen">
+  <!-- ===== スライド6：ゲーム本体 ===== -->
+  <section id="gameSlide" class="slide flex-col min-h-screen">
     <!-- ヘッダー -->
     <div class="bg-indigo-700 text-white px-4 pt-4 pb-3">
       <div class="flex justify-between items-center mb-2">
@@ -162,8 +195,8 @@
     </div>
   </section>
 
-  <!-- ===== スライド6：クリア ===== -->
-  <section class="slide flex-col items-center justify-center min-h-screen p-6 text-center">
+  <!-- ===== スライド7：クリア ===== -->
+  <section id="resultSlide" class="slide flex-col items-center justify-center min-h-screen p-6 text-center">
     <div id="resultEmoji" class="text-7xl mb-4">🏆</div>
     <h2 class="text-3xl font-black text-indigo-900 mb-2">ぜんぶクリア！</h2>
     <div class="bg-white rounded-2xl shadow-lg px-10 py-6 mb-4">
@@ -187,10 +220,10 @@
       { jp: "彼女は ネコが 好きです。",       words: ["She", "likes", "cats"] },
       { jp: "彼は ゲームを します。",         words: ["He", "plays", "games"] },
       { jp: "あなたは 私を 知っています。",   words: ["You", "know", "me"] },
-      // むずかしめ（おまけの語がつく）
-      { jp: "私は 新しい自転車を 持っています。", words: ["I", "have", "a", "new", "bike"] },
-      { jp: "私たちは 学校で 英語を 勉強します。", words: ["We", "study", "English", "at", "school"] },
-      { jp: "彼女は 毎日 本を 読みます。",     words: ["She", "reads", "books", "every", "day"] },
+      // むずかしめ（SVO＋かざり：場所 → 時）
+      { jp: "彼らは 毎日 学校で 昼食を 食べます。",   words: ["They", "eat", "lunch", "at", "school", "every", "day"] },
+      { jp: "私たちは 毎晩 家で 英語を 勉強します。", words: ["We", "study", "English", "at", "home", "every", "night"] },
+      { jp: "彼女は 毎週日曜日、家で 本を 読みます。", words: ["She", "reads", "books", "at", "home", "on", "Sundays"] },
     ];
 
     let queue = [];        // 残りの問題
@@ -224,7 +257,8 @@
       if (e.key === 'ArrowLeft') prevSlide();
     });
 
-    function goToGame() { showSlide(4); startGame(); }
+    function slideIndexById(id) { return [...slides].indexOf(document.getElementById(id)); }
+    function goToGame() { showSlide(slideIndexById('gameSlide')); startGame(); }
 
     /* ===== ゲーム ===== */
     function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
@@ -360,7 +394,7 @@
       else                       { emoji = '💪'; msg = 'ナイスチャレンジ！くり返すと上手くなるよ！'; }
       document.getElementById('resultEmoji').textContent = emoji;
       document.getElementById('resultMsg').textContent = msg;
-      showSlide(5);
+      showSlide(slideIndexById('resultSlide'));
     }
 
     /* 初期表示 */
