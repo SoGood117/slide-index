@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>英語のことばの順番ゲーム｜体験入学</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Noto Sans JP', sans-serif; }
+    .slide { display: none; }
+    .slide.active { display: flex; }
+    .word-card {
+      transition: transform 0.12s, box-shadow 0.12s, opacity 0.3s;
+      cursor: pointer; user-select: none; -webkit-user-select: none;
+    }
+    .word-card:active { transform: scale(0.95); }
+    .word-card.used { opacity: 0.25; pointer-events: none; }
+    .slot-word {
+      transition: transform 0.12s;
+      cursor: pointer; user-select: none; -webkit-user-select: none;
+    }
+    .slot-word:active { transform: scale(0.95); }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      25% { transform: translateX(-8px); }
+      75% { transform: translateX(8px); }
+    }
+    .shake { animation: shake 0.4s; }
+    @keyframes pop {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .pop { animation: pop 0.3s ease-out; }
+    .box-s { background:#fef3c7; border-color:#f59e0b; color:#92400e; }
+    .box-v { background:#dbeafe; border-color:#3b82f6; color:#1e40af; }
+    .box-o { background:#dcfce7; border-color:#22c55e; color:#166534; }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-sky-50 to-indigo-100 min-h-screen overflow-x-hidden">
+
+  <!-- ナビ矢印 -->
+  <button id="prevBtn" onclick="prevSlide()" class="fixed left-2 top-1/2 -translate-y-1/2 z-30 bg-white/80 hover:bg-white text-indigo-700 w-11 h-11 rounded-full shadow-lg text-2xl font-black">‹</button>
+  <button id="nextBtn" onclick="nextSlide()" class="fixed right-2 top-1/2 -translate-y-1/2 z-30 bg-white/80 hover:bg-white text-indigo-700 w-11 h-11 rounded-full shadow-lg text-2xl font-black">›</button>
+  <div id="pageDots" class="fixed bottom-3 left-1/2 -translate-x-1/2 z-30 flex gap-2"></div>
+
+  <!-- ===== スライド1：タイトル ===== -->
+  <section class="slide active flex-col items-center justify-center min-h-screen p-6 text-center">
+    <div class="text-7xl mb-4">🎴</div>
+    <h1 class="text-4xl sm:text-5xl font-black text-indigo-900 mb-3 leading-tight">英語のことばの<br class="sm:hidden">じゅんばんゲーム</h1>
+    <p class="text-indigo-600 font-bold text-lg mb-8">〜 体験入学へようこそ！ 〜</p>
+    <div class="bg-white/80 rounded-2xl shadow px-8 py-4 text-gray-600 font-bold">
+      カードを ならべて 英語の文を つくろう！
+    </div>
+    <p class="text-gray-400 text-sm mt-10">「›」ボタン（または → キー）で すすむ</p>
+  </section>
+
+  <!-- ===== スライド2：つかみ ===== -->
+  <section class="slide flex-col items-center justify-center min-h-screen p-6 text-center">
+    <p class="text-indigo-500 font-bold mb-4 text-lg">日本語と英語、ならべ方が ちがう！</p>
+    <div class="space-y-6 max-w-xl w-full">
+      <div class="bg-white rounded-2xl shadow p-5">
+        <p class="text-xs text-gray-400 font-bold mb-2">日本語</p>
+        <p class="text-2xl sm:text-3xl font-black text-gray-800">私は　🍣が　<span class="text-rose-500">好き</span></p>
+      </div>
+      <div class="text-3xl">👇</div>
+      <div class="bg-white rounded-2xl shadow p-5">
+        <p class="text-xs text-gray-400 font-bold mb-2">英語</p>
+        <p class="text-2xl sm:text-3xl font-black text-gray-800">I　<span class="text-blue-500">like</span>　🍣</p>
+        <p class="text-sm text-gray-400 mt-1">アイ　ライク　スシ</p>
+      </div>
+    </div>
+    <p class="text-indigo-700 font-bold mt-6 text-lg">「好き＝like」が 早く出てくる！ ここがコツ✨</p>
+  </section>
+
+  <!-- ===== スライド3：SVOの3つの箱 ===== -->
+  <section class="slide flex-col items-center justify-center min-h-screen p-6 text-center">
+    <p class="text-indigo-500 font-bold mb-2 text-lg">英語は 3つの箱の じゅんばん</p>
+    <h2 class="text-2xl font-black text-indigo-900 mb-6">だれが → する → なにを</h2>
+    <div class="flex flex-wrap items-center justify-center gap-3 mb-6">
+      <div class="box-s border-4 rounded-2xl px-6 py-5 shadow">
+        <p class="text-3xl font-black">S</p>
+        <p class="text-sm font-bold">だれが</p>
+      </div>
+      <div class="text-3xl text-gray-400 font-black">→</div>
+      <div class="box-v border-4 rounded-2xl px-6 py-5 shadow">
+        <p class="text-3xl font-black">V</p>
+        <p class="text-sm font-bold">する</p>
+      </div>
+      <div class="text-3xl text-gray-400 font-black">→</div>
+      <div class="box-o border-4 rounded-2xl px-6 py-5 shadow">
+        <p class="text-3xl font-black">O</p>
+        <p class="text-sm font-bold">なにを</p>
+      </div>
+    </div>
+    <div class="bg-white rounded-2xl shadow p-5 max-w-md w-full">
+      <p class="text-2xl font-black">
+        <span class="text-amber-600">I</span>
+        <span class="text-blue-600">like</span>
+        <span class="text-green-600">music</span>
+      </p>
+      <p class="text-sm text-gray-500 mt-2">私は　音楽が　好き</p>
+    </div>
+  </section>
+
+  <!-- ===== スライド4：ルール ===== -->
+  <section class="slide flex-col items-center justify-center min-h-screen p-6 text-center">
+    <div class="text-5xl mb-3">🕹</div>
+    <h2 class="text-2xl font-black text-indigo-900 mb-6">あそびかた</h2>
+    <div class="bg-white rounded-2xl shadow p-6 text-left max-w-sm w-full">
+      <ol class="text-gray-700 space-y-3 list-decimal list-inside font-bold">
+        <li>日本語のヒントを見る</li>
+        <li>バラバラの単語カードを <span class="text-indigo-600">正しい順にタップ</span></li>
+        <li>ぜんぶ並べたら 自動で ○×判定！</li>
+        <li>まちがえたら「けす」でやり直し</li>
+        <li>全部クリアで ゴール🏁</li>
+      </ol>
+    </div>
+    <button onclick="goToGame()" class="mt-8 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xl font-black py-4 px-12 rounded-full shadow-xl transition">
+      ゲームスタート！
+    </button>
+  </section>
+
+  <!-- ===== スライド5：ゲーム本体 ===== -->
+  <section class="slide flex-col min-h-screen">
+    <!-- ヘッダー -->
+    <div class="bg-indigo-700 text-white px-4 pt-4 pb-3">
+      <div class="flex justify-between items-center mb-2">
+        <span class="text-xs font-bold opacity-80">ことばの順番ゲーム</span>
+        <div class="flex items-center gap-3">
+          <span class="text-xs font-bold">🎴 <span id="clearCount">0</span> / <span id="totalCount">10</span></span>
+          <span class="text-sm font-black bg-yellow-400 text-indigo-900 px-2 py-0.5 rounded-full">⭐ <span id="scoreDisplay">0</span></span>
+        </div>
+      </div>
+      <div class="bg-indigo-500 rounded-full h-2">
+        <div id="progressBar" class="bg-green-400 h-2 rounded-full transition-all duration-500" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- 問題（日本語ヒント） -->
+    <div class="bg-white mx-3 mt-3 rounded-2xl shadow p-3 text-center">
+      <p class="text-xs text-gray-400 font-bold tracking-widest mb-1">この意味の英文をつくろう</p>
+      <p id="jpHint" class="text-lg font-black text-indigo-900">　</p>
+    </div>
+
+    <!-- 並べる場所（答えスロット） -->
+    <div class="mx-3 mt-3">
+      <div id="answerArea" class="min-h-[64px] bg-indigo-50 border-2 border-dashed border-indigo-300 rounded-2xl p-3 flex flex-wrap gap-2 items-center justify-center"></div>
+    </div>
+
+    <!-- フィードバック -->
+    <div id="feedback" class="hidden mx-3 mt-2 py-2 px-4 rounded-xl text-center font-bold text-sm"></div>
+
+    <!-- 単語カード置き場 -->
+    <div id="wordPool" class="flex flex-wrap gap-2 justify-center p-4"></div>
+
+    <!-- 操作ボタン -->
+    <div class="flex gap-3 justify-center px-4 pb-6 mt-auto">
+      <button onclick="undoWord()" class="bg-amber-100 hover:bg-amber-200 text-amber-800 font-black px-6 py-3 rounded-full shadow">↩ けす</button>
+      <button onclick="resetRound()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-black px-6 py-3 rounded-full shadow">🔄 リセット</button>
+      <button onclick="speakEn()" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-black px-6 py-3 rounded-full shadow">🔊 読む</button>
+    </div>
+  </section>
+
+  <!-- ===== スライド6：クリア ===== -->
+  <section class="slide flex-col items-center justify-center min-h-screen p-6 text-center">
+    <div id="resultEmoji" class="text-7xl mb-4">🏆</div>
+    <h2 class="text-3xl font-black text-indigo-900 mb-2">ぜんぶクリア！</h2>
+    <div class="bg-white rounded-2xl shadow-lg px-10 py-6 mb-4">
+      <p class="text-gray-500 text-sm mb-1">スコア</p>
+      <p class="text-5xl font-black text-indigo-700"><span id="finalScore">0</span></p>
+    </div>
+    <p id="resultMsg" class="text-gray-500 mb-8"></p>
+    <button onclick="goToGame()" class="bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xl font-black py-4 px-12 rounded-full shadow-xl transition">
+      もう一度！
+    </button>
+  </section>
+
+  <script>
+    /* ===== コンテンツ（やさしめ 中1〜2相当 SVO） ===== */
+    const SENTENCES = [
+      { jp: "私は 音楽が 好きです。",       words: ["I", "like", "music"] },
+      { jp: "私たちは サッカーを します。", words: ["We", "play", "soccer"] },
+      { jp: "私は アニメを 見ます。",       words: ["I", "watch", "anime"] },
+      { jp: "彼らは ピザを 食べます。",     words: ["They", "eat", "pizza"] },
+      { jp: "彼女は ネコが 好きです。",     words: ["She", "likes", "cats"] },
+      { jp: "彼は ゲームを します。",       words: ["He", "plays", "games"] },
+      { jp: "私は ラーメンが 大好きです。", words: ["I", "love", "ramen"] },
+      { jp: "あなたは 私を 知っています。", words: ["You", "know", "me"] },
+      { jp: "私たちは 英語を 勉強します。", words: ["We", "study", "English"] },
+      { jp: "私は 犬を 飼っています。",     words: ["I", "have", "a", "dog"] },
+    ];
+
+    let queue = [];        // 残りの問題
+    let current = null;    // 現在の問題
+    let placed = [];       // 並べた単語（indexの配列）
+    let clearCount = 0;
+    let score = 0;
+    let wrongThisRound = 0;
+
+    /* ===== スライドナビ ===== */
+    let idx = 0;
+    const slides = document.querySelectorAll('.slide');
+    const dots = document.getElementById('pageDots');
+    slides.forEach((_, i) => {
+      const d = document.createElement('div');
+      d.className = 'w-2 h-2 rounded-full bg-white/60';
+      d.onclick = () => showSlide(i);
+      dots.appendChild(d);
+    });
+    function showSlide(n) {
+      idx = Math.max(0, Math.min(slides.length - 1, n));
+      slides.forEach((s, i) => s.classList.toggle('active', i === idx));
+      [...dots.children].forEach((d, i) => d.classList.toggle('bg-indigo-600', i === idx));
+      document.getElementById('prevBtn').style.visibility = idx === 0 ? 'hidden' : 'visible';
+      document.getElementById('nextBtn').style.visibility = idx === slides.length - 1 ? 'hidden' : 'visible';
+    }
+    function nextSlide() { showSlide(idx + 1); }
+    function prevSlide() { showSlide(idx - 1); }
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight') nextSlide();
+      if (e.key === 'ArrowLeft') prevSlide();
+    });
+
+    function goToGame() { showSlide(4); startGame(); }
+
+    /* ===== ゲーム ===== */
+    function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+
+    function startGame() {
+      queue = shuffle(SENTENCES);
+      clearCount = 0; score = 0;
+      updateHud();
+      nextRound();
+    }
+
+    function nextRound() {
+      hideFeedback();
+      if (queue.length === 0) { showResult(); return; }
+      current = queue.shift();
+      placed = [];
+      wrongThisRound = 0;
+      document.getElementById('jpHint').textContent = current.jp;
+      buildPool();
+      renderAnswer();
+    }
+
+    function buildPool() {
+      const pool = document.getElementById('wordPool');
+      pool.innerHTML = '';
+      // 単語をシャッフルして表示（indexで管理）
+      const order = shuffle(current.words.map((w, i) => i));
+      order.forEach(i => {
+        const btn = document.createElement('button');
+        btn.className = 'word-card bg-white border-2 border-indigo-200 rounded-xl shadow px-5 py-3 text-xl font-black text-indigo-900';
+        btn.textContent = current.words[i];
+        btn.dataset.i = i;
+        btn.addEventListener('click', () => placeWord(i, btn));
+        pool.appendChild(btn);
+      });
+    }
+
+    function placeWord(i, btn) {
+      if (placed.includes(i)) return;
+      placed.push(i);
+      btn.classList.add('used');
+      renderAnswer();
+      if (placed.length === current.words.length) checkAnswer();
+    }
+
+    function renderAnswer() {
+      const area = document.getElementById('answerArea');
+      area.innerHTML = '';
+      if (placed.length === 0) {
+        area.innerHTML = '<span class="text-indigo-300 font-bold text-sm">ここに 単語が ならびます</span>';
+        return;
+      }
+      placed.forEach((i, pos) => {
+        const chip = document.createElement('button');
+        chip.className = 'slot-word bg-indigo-600 text-white rounded-xl shadow px-4 py-2 text-lg font-black pop';
+        chip.textContent = current.words[i];
+        chip.onclick = () => removeAt(pos);
+        area.appendChild(chip);
+      });
+    }
+
+    function removeAt(pos) {
+      const i = placed[pos];
+      placed.splice(pos, 1);
+      const btn = document.querySelector(`.word-card[data-i="${i}"]`);
+      if (btn) btn.classList.remove('used');
+      hideFeedback();
+      renderAnswer();
+    }
+
+    function undoWord() {
+      if (placed.length === 0) return;
+      removeAt(placed.length - 1);
+    }
+
+    function resetRound() {
+      placed = [];
+      document.querySelectorAll('.word-card').forEach(b => b.classList.remove('used'));
+      hideFeedback();
+      renderAnswer();
+    }
+
+    function checkAnswer() {
+      const correct = placed.every((i, pos) => i === pos); // 正順は 0,1,2,...
+      if (correct) {
+        const earned = Math.max(1, 3 - wrongThisRound);
+        score += earned;
+        clearCount++;
+        updateHud();
+        showFeedback(`⭕ 正解！ +${earned}点`, 'bg-green-100 text-green-700');
+        speakEn();
+        setTimeout(nextRound, 1400);
+      } else {
+        wrongThisRound++;
+        const area = document.getElementById('answerArea');
+        area.classList.add('shake');
+        setTimeout(() => area.classList.remove('shake'), 400);
+        showFeedback('❌ おしい！順番をなおしてみよう（「けす」でもどせるよ）', 'bg-red-100 text-red-700');
+      }
+    }
+
+    function speakEn() {
+      if (!current || !window.speechSynthesis) return;
+      const sentence = current.words.join(' ') + '.';
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(sentence);
+      u.lang = 'en-US';
+      u.rate = 0.85;
+      speechSynthesis.speak(u);
+    }
+
+    function updateHud() {
+      document.getElementById('clearCount').textContent = clearCount;
+      document.getElementById('totalCount').textContent = SENTENCES.length;
+      document.getElementById('scoreDisplay').textContent = score;
+      document.getElementById('progressBar').style.width = (clearCount / SENTENCES.length * 100) + '%';
+    }
+
+    function showFeedback(msg, cls) {
+      const el = document.getElementById('feedback');
+      el.textContent = msg;
+      el.className = `mx-3 mt-2 py-2 px-4 rounded-xl text-center font-bold text-sm pop ${cls}`;
+    }
+    function hideFeedback() { document.getElementById('feedback').className = 'hidden'; }
+
+    function showResult() {
+      document.getElementById('finalScore').textContent = score;
+      const max = SENTENCES.length * 3;
+      let emoji = '🏆', msg = 'クリアおめでとう！英語のじゅんばん、バッチリ！';
+      if (score >= max)          { emoji = '👑'; msg = 'パーフェクト！！天才あらわる！'; }
+      else if (score >= max*0.8) { emoji = '😄'; msg = 'すごい！ほぼ満点だよ！'; }
+      else if (score >= max*0.5) { emoji = '😊'; msg = 'いい感じ！もう一回チャレンジ！'; }
+      else                       { emoji = '💪'; msg = 'ナイスチャレンジ！くり返すと上手くなるよ！'; }
+      document.getElementById('resultEmoji').textContent = emoji;
+      document.getElementById('resultMsg').textContent = msg;
+      showSlide(5);
+    }
+
+    /* 初期表示 */
+    showSlide(0);
+  </script>
+</body>
+</html>

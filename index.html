@@ -96,6 +96,10 @@ const ITEMS_ZENSHO3 = [
 const ITEMS_MISC = [
   { label:'代名詞', sub:'Pronouns ｜ 主格 / 所有格 / 目的格 / 所有代名詞', url:'https://sogood117.github.io/1nen-slides/pronouns_table.html', icon:'📊' },
 ];
+// 体験入学（中学生向け）
+const ITEMS_TAIKEN = [
+  { label:'SVO並べ替えゲーム', sub:'ことばの順番 ｜ 単語カードを S→V→O の順に並べよう（説明スライド＋ゲーム）', url:'https://sogood117.github.io/slide-index/taiken_svo.html', icon:'🎴' },
+];
 const ITEMS_TIMER = [
   { label:'TIMER', sub:'授業用カウントダウン ｜ 色変化＋ラスト10秒演出＋チャイム', url:'https://sogood117.github.io/slide-index/timer.html', icon:'⏱' },
 ];
@@ -284,9 +288,17 @@ function render600() {
 function renderMisc() {
   const container = document.getElementById('content-grade-misc');
   const zensho3HTML = ITEMS_ZENSHO3.map(item=>staticCard(item,'border-indigo-200','bg-indigo-100 text-indigo-700 border border-indigo-200','全商英検3級')).join('');
+  const taikenHTML  = ITEMS_TAIKEN.map(item=>staticCard(item,'border-rose-200','bg-rose-100 text-rose-700 border border-rose-200','体験入学')).join('');
   const miscHTML    = ITEMS_MISC.map(item=>staticCard(item,'border-purple-200','bg-purple-100 text-purple-700 border border-purple-200','参考')).join('');
   container.innerHTML = `
     <div class="space-y-8">
+      <div>
+        <div class="flex items-center gap-3 mb-4">
+          <div class="flex items-center gap-2 bg-rose-500 text-white px-4 py-2 rounded-xl font-black text-lg shadow">🎴 体験入学</div>
+          <span class="text-sm text-gray-400">${ITEMS_TAIKEN.length} アイテム</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">${taikenHTML}</div>
+      </div>
       <div>
         <div class="flex items-center gap-3 mb-4">
           <div class="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-xl font-black text-lg shadow">🎓 全商英検３級</div>
