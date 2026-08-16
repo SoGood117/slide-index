@@ -179,16 +179,18 @@
   <script>
     /* ===== コンテンツ（やさしめ 中1〜2相当 SVO） ===== */
     const SENTENCES = [
-      { jp: "私は 音楽が 好きです。",       words: ["I", "like", "music"] },
-      { jp: "私たちは サッカーを します。", words: ["We", "play", "soccer"] },
-      { jp: "私は アニメを 見ます。",       words: ["I", "watch", "anime"] },
-      { jp: "彼らは ピザを 食べます。",     words: ["They", "eat", "pizza"] },
-      { jp: "彼女は ネコが 好きです。",     words: ["She", "likes", "cats"] },
-      { jp: "彼は ゲームを します。",       words: ["He", "plays", "games"] },
-      { jp: "私は ラーメンが 大好きです。", words: ["I", "love", "ramen"] },
-      { jp: "あなたは 私を 知っています。", words: ["You", "know", "me"] },
-      { jp: "私たちは 英語を 勉強します。", words: ["We", "study", "English"] },
-      { jp: "私は 犬を 飼っています。",     words: ["I", "have", "a", "dog"] },
+      // やさしめ（3語）
+      { jp: "私は 音楽が 好きです。",         words: ["I", "like", "music"] },
+      { jp: "私たちは サッカーを します。",   words: ["We", "play", "soccer"] },
+      { jp: "私は アニメを 見ます。",         words: ["I", "watch", "anime"] },
+      { jp: "彼らは ピザを 食べます。",       words: ["They", "eat", "pizza"] },
+      { jp: "彼女は ネコが 好きです。",       words: ["She", "likes", "cats"] },
+      { jp: "彼は ゲームを します。",         words: ["He", "plays", "games"] },
+      { jp: "あなたは 私を 知っています。",   words: ["You", "know", "me"] },
+      // むずかしめ（おまけの語がつく）
+      { jp: "私は 新しい自転車を 持っています。", words: ["I", "have", "a", "new", "bike"] },
+      { jp: "私たちは 学校で 英語を 勉強します。", words: ["We", "study", "English", "at", "school"] },
+      { jp: "彼女は 毎日 本を 読みます。",     words: ["She", "reads", "books", "every", "day"] },
     ];
 
     let queue = [];        // 残りの問題
