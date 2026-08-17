@@ -259,6 +259,7 @@
     let clearCount = 0;
     let score = 0;
     let wrongThisRound = 0;
+    let gameActive = false;  // ゲーム進行中フラグ
 
     /* ===== スライドナビ ===== */
     let idx = 0;
@@ -276,6 +277,8 @@
       [...dots.children].forEach((d, i) => d.classList.toggle('bg-indigo-600', i === idx));
       document.getElementById('prevBtn').style.visibility = idx === 0 ? 'hidden' : 'visible';
       document.getElementById('nextBtn').style.visibility = idx === slides.length - 1 ? 'hidden' : 'visible';
+      // ゲーム画面に入ったら、まだ始まっていなければ自動でスタート
+      if (idx === slideIndexById('gameSlide') && !gameActive) startGame();
     }
     function nextSlide() { showSlide(idx + 1); }
     function prevSlide() { showSlide(idx - 1); }
@@ -285,7 +288,7 @@
     });
 
     function slideIndexById(id) { return [...slides].indexOf(document.getElementById(id)); }
-    function goToGame() { showSlide(slideIndexById('gameSlide')); startGame(); }
+    function goToGame() { gameActive = false; showSlide(slideIndexById('gameSlide')); }
 
     /* ===== QRオーバーレイ ===== */
     function toggleQR(show) {
@@ -360,6 +363,7 @@
 
     function startGame() {
       ensureAudio();
+      gameActive = true;
       queue = shuffle(SENTENCES);
       clearCount = 0; score = 0;
       updateHud();
@@ -492,6 +496,7 @@
       else                       { emoji = '💪'; msg = 'ナイスチャレンジ！くり返すと上手くなるよ！'; }
       document.getElementById('resultEmoji').textContent = emoji;
       document.getElementById('resultMsg').textContent = msg;
+      gameActive = false;
       showSlide(slideIndexById('resultSlide'));
     }
 
