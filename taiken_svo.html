@@ -155,6 +155,9 @@
       { jp: "彼らは 毎日 学校で 昼食を 食べます。",   words: ["They","eat","lunch","at","school","every","day"],   types:["s","v","o","m","m","m","m"] },
       { jp: "私たちは 毎晩 家で 英語を 勉強します。", words: ["We","study","English","at","home","every","night"], types:["s","v","o","m","m","m","m"] },
       { jp: "彼女は 毎週日曜日、家で 本を 読みます。", words: ["She","reads","books","at","home","on","Sundays"],   types:["s","v","o","m","m","m","m"] },
+      // 🔥 チャレンジ問題（絵を見て英語で！・過去の文）※日本語訳は出さない
+      { jp: "絵を見て 英語で こたえよう！", hint:"🍞😋", challenge:true, words:["Nobita","ate","memory","bread"], types:["s","v","o","o"] },
+      { jp: "絵を見て 英語で こたえよう！", hint:"💯📄", challenge:true, words:["Nobita","got","100","points"],  types:["s","v","o","o"] },
     ];
 
     const COLOR = { s:'text-amber-600', v:'text-blue-600', o:'text-green-600', m:'text-gray-500' };
@@ -186,17 +189,29 @@
     }
 
     function renderAnswers() {
-      document.getElementById('answerList').innerHTML = ANSWERS.map((a, i) => `
-        <div onclick="revealNext(${i})" class="bg-white rounded-xl shadow border border-indigo-100 cursor-pointer select-none active:scale-[0.99] transition">
+      let chNo = 0;
+      document.getElementById('answerList').innerHTML = ANSWERS.map((a, i) => {
+        // チャレンジの先頭に見出しを入れる
+        const header = (a.challenge && (i === 0 || !ANSWERS[i - 1].challenge))
+          ? `<div class="pt-5 pb-1 text-center"><span class="bg-rose-500 text-white font-black text-sm px-4 py-1.5 rounded-full">🔥 チャレンジ問題（絵を見て 英語で！）</span></div>`
+          : '';
+        const badge = a.challenge ? '🔥' : (i + 1);
+        if (a.challenge) chNo++;
+        const num = a.challenge ? `<span class="text-xs font-black text-white bg-rose-500 rounded-full w-6 h-6 flex items-center justify-center shrink-0">${chNo}</span>` :
+          `<span class="text-xs font-black text-white bg-indigo-500 rounded-full w-6 h-6 flex items-center justify-center shrink-0">${i + 1}</span>`;
+        const hint = a.hint ? `<span class="${a.challenge ? 'text-3xl' : 'text-xl'}">${a.hint}</span>` : '';
+        return header + `
+        <div onclick="revealNext(${i})" class="bg-white rounded-xl shadow border ${a.challenge ? 'border-rose-300' : 'border-indigo-100'} cursor-pointer select-none active:scale-[0.99] transition">
           <div class="px-4 py-3 flex items-center gap-3">
-            <span class="text-xs font-black text-white bg-indigo-500 rounded-full w-6 h-6 flex items-center justify-center shrink-0">${i + 1}</span>
+            ${num}
+            ${hint}
             <span class="font-bold text-gray-800 text-sm sm:text-base">${a.jp}</span>
           </div>
           <div class="px-4 pb-3">
-            <div id="words-${i}" class="border-t border-dashed border-indigo-200 pt-2 text-lg sm:text-2xl font-black leading-relaxed min-h-[2.2rem] flex flex-wrap items-center"></div>
+            <div id="words-${i}" class="border-t border-dashed ${a.challenge ? 'border-rose-200' : 'border-indigo-200'} pt-2 text-lg sm:text-2xl font-black leading-relaxed min-h-[2.2rem] flex flex-wrap items-center"></div>
           </div>
-        </div>
-      `).join('');
+        </div>`;
+      }).join('');
       ANSWERS.forEach((_, i) => renderWords(i));
     }
 
