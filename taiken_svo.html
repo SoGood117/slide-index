@@ -23,10 +23,12 @@
 </head>
 <body class="bg-gradient-to-br from-sky-50 to-indigo-100 min-h-screen overflow-x-hidden">
 
-  <!-- ナビ矢印 -->
-  <button id="prevBtn" onclick="prevSlide()" class="fixed left-2 top-1/2 -translate-y-1/2 z-30 bg-white/80 hover:bg-white text-indigo-700 w-11 h-11 rounded-full shadow-lg text-2xl font-black">‹</button>
-  <button id="nextBtn" onclick="nextSlide()" class="fixed right-2 top-1/2 -translate-y-1/2 z-30 bg-white/80 hover:bg-white text-indigo-700 w-11 h-11 rounded-full shadow-lg text-2xl font-black">›</button>
-  <div id="pageDots" class="fixed bottom-3 left-1/2 -translate-x-1/2 z-30 flex gap-2"></div>
+  <!-- ナビ（下中央にまとめて配置） -->
+  <div class="fixed bottom-3 left-1/2 -translate-x-1/2 z-30 flex items-center gap-4">
+    <button id="prevBtn" onclick="prevSlide()" class="bg-white/80 hover:bg-white text-indigo-700 w-11 h-11 rounded-full shadow-lg text-2xl font-black">‹</button>
+    <div id="pageDots" class="flex gap-2"></div>
+    <button id="nextBtn" onclick="nextSlide()" class="bg-white/80 hover:bg-white text-indigo-700 w-11 h-11 rounded-full shadow-lg text-2xl font-black">›</button>
+  </div>
 
   <!-- ===== スライド1：タイトル ===== -->
   <section class="slide active flex-col items-center justify-center min-h-screen p-6 text-center">
