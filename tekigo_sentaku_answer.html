@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>全商英語検定試験問題集 解答｜書き方 適語選択</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap');
+  body { font-family:'Noto Sans JP', sans-serif; }
+  .en { font-family:'Georgia','Times New Roman',serif; }
+  .qcard { transition: box-shadow .15s ease; }
+  .opt { transition: background .15s ease, border-color .15s ease, color .15s ease; }
+  .reveal { display:none; }
+  .reveal.show { display:block; }
+</style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800">
+
+<header class="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-sm">
+  <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+    <div>
+      <p class="text-xs sm:text-sm font-bold text-indigo-500">🎓 全商英語検定試験問題集 解答（書き方）</p>
+      <h1 class="text-xl sm:text-2xl font-black">✏️ 適語選択 <span class="text-slate-400 font-bold text-base">答え合わせ</span></h1>
+      <p class="text-xs text-slate-400 mt-0.5">（　）に入る語を①②③から予想 → カードをタップすると正解が緑に光ります</p>
+    </div>
+    <div class="flex gap-2 shrink-0">
+      <button onclick="toggleAll(true)"  class="bg-blue-500 hover:bg-blue-600 text-white text-xs sm:text-sm font-bold px-3 py-2 rounded-xl">全部表示</button>
+      <button onclick="toggleAll(false)" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs sm:text-sm font-bold px-3 py-2 rounded-xl">全部隠す</button>
+    </div>
+  </div>
+  <div class="max-w-4xl mx-auto px-4 pb-3 flex gap-1 overflow-x-auto" id="tabbar"></div>
+</header>
+
+<main class="max-w-4xl mx-auto px-4 py-6" id="main"></main>
+
+<footer class="text-center text-xs text-slate-400 py-6 px-4 leading-relaxed">
+  英文の（　）に入る、もっとも適当な語を①〜③から選ぶ問題です。緑＝正解。<br>
+  ＝全商英語検定試験問題集（3級）Part 3 Writing 実践演習 p.48〜49／適語選択 準拠＝
+</footer>
+
+<script>
+// pre＝（　）の前 / opts=[①,②,③] / post＝（　）の後 / a=正解番号 / r=ポイント
+const SETS = [
+  { title:'大問1', kai:'', items:[
+    { pre:"I met a friend of", opts:["you","your","yours"], post:"on the street yesterday.", a:3, r:"a friend of yours ＝ あなたの友達（of のあとは所有代名詞）" },
+    { pre:"Both Ken and I", opts:["am","is","are"], post:"fond of soccer.", a:3, r:"Both A and B は複数扱い → are" },
+    { pre:"She", opts:["made","had","took"], post:"care of her brother.", a:3, r:"take care of ～ ＝ ～の世話をする" },
+    { pre:"I like fruit.", opts:["At","In","For"], post:"example, I like apples very much.", a:3, r:"for example ＝ たとえば" },
+    { pre:"Don't leave me", opts:["alone","nothing","one"], post:". I will follow you.", a:1, r:"leave 人 alone ＝ （人を）ほうっておく・一人にする" },
+  ]},
+  { title:'大問2', kai:'', items:[
+    { pre:"The boy fell", opts:["sleep","sleepy","asleep"], post:"soon after he went to bed.", a:3, r:"fall asleep ＝ 眠りに落ちる" },
+    { pre:"Thanks", opts:["on","to","at"], post:"your advice, I could finish my report.", a:2, r:"thanks to ～ ＝ ～のおかげで" },
+    { pre:"Hurry up,", opts:["and","or","but"], post:"you will miss the train.", a:2, r:"命令文, or … ＝ …しなさい、さもないと～" },
+    { pre:"His story always", opts:["makes","has","takes"], post:"me laugh.", a:1, r:"make ＋ O ＋ 動詞の原形 ＝ O に～させる" },
+    { pre:"I have two sisters. One is a college student and", opts:["another","other","the other"], post:"works for a bank.", a:3, r:"2人のうち one …, the other … ＝ 一方は…、もう一方は…" },
+  ]},
+  { title:'大問3', kai:'第62回', items:[
+    { pre:"Can you help me", opts:["at","in","with"], post:"my homework?", a:3, r:"help 人 with ～ ＝ 人の～を手伝う" },
+    { pre:"A: How did you come here?　B: I came here on", opts:["hand","head","foot"], post:".", a:3, r:"on foot ＝ 徒歩で" },
+    { pre:"There is", opts:["a few","a little","few"], post:"milk in my cup.", a:2, r:"milk は数えられない名詞 → a little（少しある）" },
+    { pre:"I caught a cold,", opts:["because","for","so"], post:"I didn't go swimming yesterday.", a:3, r:"風邪をひいた、（それで）泳ぎに行かなかった → so（だから）" },
+    { pre:"The old man", opts:["got","took","turned"], post:"off the train slowly.", a:1, r:"get off ～ ＝ （電車・バスを）降りる" },
+  ]},
+  { title:'大問4', kai:'第64回', items:[
+    { pre:"I will go to America", opts:["for","in","to"], post:"the first time.", a:1, r:"for the first time ＝ 初めて" },
+    { pre:"The", opts:["power","price","space"], post:"of this refrigerator is $500.", a:2, r:"price ＝ 値段（＄500 は値段）" },
+    { pre:"Computers are", opts:["softly","loudly","widely"], post:"used around the world by people of all ages.", a:3, r:"widely used ＝ 広く使われている" },
+    { pre:"A:", opts:["How","When","Who"], post:"do you go to school?　B: I walk to school.", a:1, r:"「歩いて（手段）」を尋ねる → How" },
+    { pre:"I", opts:["studied","slept","stayed"], post:"up late last night to finish my homework.", a:3, r:"stay up late ＝ 夜ふかしする" },
+  ]},
+  { title:'大問5', kai:'第66回', items:[
+    { pre:"Thanks", opts:["in","of","to"], post:"my uncle, I got a job.", a:3, r:"thanks to ～ ＝ ～のおかげで" },
+    { pre:"A: Which", opts:["season","song","subject"], post:"do you like best?　B: I like summer best.", a:1, r:"summer（夏）は season（季節）" },
+    { pre:"A: What's", opts:["bad","hard","wrong"], post:"with you?　B: I have a headache.", a:3, r:"What's wrong with you? ＝ どうしたのですか" },
+    { pre:"I", opts:["gave","looked","changed"], post:"Japanese yen into American dollars.", a:3, r:"change A into B ＝ A を B に両替する" },
+    { pre:"I saw a big dog on my way home and I ran away", opts:["kindly","quickly","widely"], post:".", a:2, r:"run away quickly ＝ すばやく逃げる" },
+  ]},
+  { title:'大問6', kai:'第68回', items:[
+    { pre:"Shibusawa Eiichi was born", opts:["at","in","on"], post:"1840.", a:2, r:"in ＋ 年 ＝ ～年に" },
+    { pre:"We played baseball near the", opts:["bank","base","book"], post:"of a river.", a:1, r:"bank of a river ＝ 川岸・土手" },
+    { pre:"A: Is this your", opts:["first","free","full"], post:"trip to Japan?　B: No, this is my second time.", a:1, r:"first trip ＝ 初めての旅行（second time と対応）" },
+    { pre:"Can you", opts:["get","make","tell"], post:"me the way to the station?", a:3, r:"tell 人 the way ＝ 人に道を教える" },
+    { pre:"Would you like a cup of tea", opts:["before","until","while"], post:"you're waiting?", a:3, r:"while ～ ＝ ～している間に" },
+  ]},
+  { title:'大問7', kai:'第70回', items:[
+    { pre:"The meeting will take place", opts:["from","in","on"], post:"this room.", a:2, r:"take place in ～ ＝ ～で行われる" },
+    { pre:"A: Where is the police", opts:["airport","market","station"], post:"?　B: It's that building over there.", a:3, r:"police station ＝ 警察署" },
+    { pre:"Do you have", opts:["many","much","few"], post:"money in your wallet?", a:2, r:"money は数えられない → much" },
+    { pre:"My father usually", opts:["gives","puts","takes"], post:"a bath before dinner.", a:3, r:"take a bath ＝ 風呂に入る" },
+    { pre:"Let's go", opts:["inside","outside","upstairs"], post:"and play soccer in the park.", a:2, r:"outside ＝ 外へ（公園でサッカー）" },
+  ]},
+  { title:'大問8', kai:'第60回', items:[
+    { pre:"My father works from Monday", opts:["in","on","to"], post:"Friday.", a:3, r:"from Monday to Friday ＝ 月曜から金曜まで" },
+    { pre:"I am going to go to the", opts:["museum","police","zoo"], post:"to look at arts.", a:1, r:"美術（arts）を見る → museum（美術館・博物館）" },
+    { pre:"Her story is", opts:["delicious","healthy","surprising"], post:"and moving.", a:3, r:"surprising ＝ 驚くべき（and moving ＝ 感動的で）" },
+    { pre:"Put on your coat,", opts:["and","but","or"], post:"you will catch a cold.", a:3, r:"命令文, or … ＝ …しなさい、さもないと～" },
+    { pre:"My sister", opts:["gives","looks","warms"], post:"up new words in a dictionary.", a:2, r:"look up ～ ＝ （辞書で）～を調べる" },
+  ]},
+];
+
+const CIRC = ['','①','②','③','④'];
+const AB   = ['a','b','c','d','e','f','g'];
+let cur = 0;
+
+const TAB_ON  = 'border-blue-500 text-blue-700 bg-blue-50';
+const TAB_OFF = 'border-transparent text-slate-500 bg-white hover:text-slate-700';
+function renderTabs(){
+  document.getElementById('tabbar').innerHTML = SETS.map((s,i)=>
+    `<button onclick="switchTab(${i})" id="tab-${i}"
+       class="tabbtn shrink-0 px-4 py-2 text-sm font-bold rounded-t-xl border-b-2 ${i===cur?TAB_ON:TAB_OFF}">
+       ${s.title}</button>`).join('');
+}
+function switchTab(i){ cur=i; renderTabs(); renderMain(); }
+
+function renderMain(){
+  const s = SETS[cur];
+  document.getElementById('main').innerHTML = `
+    <div class="flex items-center gap-2 mb-4">
+      <span class="bg-indigo-600 text-white px-3 py-1 rounded-lg font-black text-sm">${s.title}</span>
+      ${s.kai?`<span class="en text-xs font-bold text-slate-400">(${s.kai})</span>`:''}
+    </div>
+    <div class="space-y-3">
+      ${s.items.map((it,ii)=>{
+        const id = `${cur}-${ii}`;
+        const opts = it.opts.map((o,oi)=>{
+          const n = oi+1;
+          return `<span class="opt inline-block rounded-md border border-transparent px-1.5 py-0.5" id="opt-${id}-${n}">
+                    <span class="font-black text-slate-400">${CIRC[n]}</span>
+                    <span class="en">${o}</span></span>`;
+        }).join(' ');
+        return `
+        <div class="qcard bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <button onclick="toggle('${id}')" class="w-full text-left px-4 py-3 hover:bg-slate-50">
+            <div class="flex items-start gap-3">
+              <span class="text-slate-400 font-black text-sm mt-1 w-4 shrink-0">${AB[ii]}.</span>
+              <p class="flex-1 text-base sm:text-lg leading-relaxed">
+                <span class="en">${it.pre}</span>
+                <span class="text-slate-400">（</span>${opts}<span class="text-slate-400">）</span>
+                <span class="en">${it.post}</span>
+              </p>
+              <span class="text-slate-300 text-xs mt-1 shrink-0" id="hint-${id}">タップで正解 ▾</span>
+            </div>
+          </button>
+          <div class="reveal px-4 pb-3 pl-11" id="rev-${id}">
+            <div class="bg-emerald-50 border border-emerald-100 rounded-lg px-3 py-2 text-sm flex items-start gap-2">
+              <span class="font-black text-emerald-600 shrink-0">答え ${CIRC[it.a]} <span class="en">${it.opts[it.a-1]}</span></span>
+              <span class="text-slate-600 mt-0.5">${it.r}</span>
+            </div>
+          </div>`;
+      }).join('')}
+    </div>`;
+}
+
+function setRevealed(id, on){
+  const it = SETS[+id.split('-')[0]].items[+id.split('-')[1]];
+  document.getElementById(`rev-${id}`).classList.toggle('show', on);
+  const h = document.getElementById(`hint-${id}`);
+  if(h) h.style.visibility = on ? 'hidden' : 'visible';
+  const opt = document.getElementById(`opt-${id}-${it.a}`);
+  if(opt){
+    opt.classList.toggle('bg-emerald-100', on);
+    opt.classList.toggle('border-emerald-300', on);
+    opt.classList.toggle('font-black', on);
+  }
+}
+function toggle(id){
+  const on = !document.getElementById(`rev-${id}`).classList.contains('show');
+  setRevealed(id, on);
+}
+function toggleAll(on){
+  document.querySelectorAll('.reveal').forEach(r=> setRevealed(r.id.replace('rev-',''), on));
+}
+
+renderTabs();
+renderMain();
+</script>
+</body>
+</html>
