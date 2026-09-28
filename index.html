@@ -183,6 +183,11 @@ async function refreshCurrent() {
 // ── ファイル名パース ──────────────────────────────────────────────
 function parseFileName(name) {
   const base = name.replace('.html','');
+
+  // 中間考査 対策プリント 解説（taisaku_L3_P1 形式）→ 学年タブの最後にまとめる
+  const tm = base.match(/^taisaku_L(\d+)_P(\d+)$/);
+  if (tm) return { label:`Lesson ${tm[1]} Part ${tm[2]}`, lesson:1000, tag:'taisaku', sectionNum:parseInt(tm[2],10), group:'中間考査対策' };
+
   let rest = base;
   if (/^\dS_/.test(base))     rest = base.replace(/^\dS_/,'');
   else if (/^\d_/.test(base)) rest = base.replace(/^\d_/,'');
@@ -209,7 +214,7 @@ function parseFileName(name) {
 }
 
 function tagBadge(tag) {
-  const map = { focus:{cls:'tag-focus',text:'Focus'}, section:{cls:'tag-section',text:'Section'}, ura:{cls:'tag-ura',text:'裏面'}, try:{cls:'tag-try',text:'Try'}, ondoku:{cls:'tag-ondoku',text:'音読'} };
+  const map = { focus:{cls:'tag-focus',text:'Focus'}, section:{cls:'tag-section',text:'Section'}, ura:{cls:'tag-ura',text:'裏面'}, try:{cls:'tag-try',text:'Try'}, ondoku:{cls:'tag-ondoku',text:'音読'}, taisaku:{cls:'tag-section',text:'対策'} };
   const t = map[tag]||{cls:'tag-section',text:''};
   return `<span class="text-xs font-bold px-2 py-0.5 rounded-full ${t.cls}">${t.text}</span>`;
 }
@@ -219,7 +224,7 @@ function groupByLesson(files) {
   files.forEach(f => {
     if (!f.name.endsWith('.html')) return;
     const parsed=parseFileName(f.name);
-    const key = parsed.lesson!=null ? `L${parsed.lesson}` : 'その他';
+    const key = parsed.group ? parsed.group : (parsed.lesson!=null ? `L${parsed.lesson}` : 'その他');
     if (!groups[key]) groups[key]={lesson:parsed.lesson??999,files:[]};
     groups[key].files.push({...f,parsed});
   });
