@@ -189,8 +189,12 @@ function parseFileName(name) {
   if (tm) return { label: tm[2] ? `Lesson ${tm[1]} Part ${tm[2]}` : `Lesson ${tm[1]}`, lesson:1000, tag:'taisaku', sectionNum: tm[2] ? parseInt(tm[2],10) : parseInt(tm[1],10), group:'中間考査対策' };
   // Lesson 形式以外の対策プリント（例：問題集の解説）も中間考査対策グループに続ける
   if (base.startsWith('taisaku_')) {
-    let lbl = base.replace(/^taisaku_/,'').replace(/_/g,' ').replace(/\bp(\d)/i,'p.$1');
-    lbl = lbl.charAt(0).toUpperCase() + lbl.slice(1);
+    const TAISAKU_LABELS = { 'taisaku_willing_p28-33': '中間対策（Willing）' };
+    let lbl = TAISAKU_LABELS[base];
+    if (!lbl) {
+      lbl = base.replace(/^taisaku_/,'').replace(/_/g,' ').replace(/\bp(\d)/i,'p.$1');
+      lbl = lbl.charAt(0).toUpperCase() + lbl.slice(1);
+    }
     return { label: lbl, lesson:1000, tag:'taisaku', sectionNum:900, group:'中間考査対策' };
   }
 
