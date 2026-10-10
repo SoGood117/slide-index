@@ -73,29 +73,53 @@ function shouldExclude(name) {
   return ['karuta_','narabe_','pronouns_','600_','sample_sharing'].some(p => name.startsWith(p));
 }
 
-const ITEMS_600_KAISETSU = [
-  { label:'600前置詞(1)(2)解説', sub:'前置詞（1）（2） ｜ 空所の日本語解説', url:'https://sogood117.github.io/1nen-slides/600_prepositions_answer.html', icon:'📝' },
-  { label:'600不定詞(1)(2)解説', sub:'不定詞（1）（2） ｜ 重要語句の日本語解説', url:'https://sogood117.github.io/1nen-slides/600_futeishi12_answer.html', icon:'📝' },
-  { label:'600口語表現(1)(2)解説', sub:'口語表現（1）（2） ｜ 重要語句の日本語解説', url:'https://sogood117.github.io/1nen-slides/600_kougo12_answer.html', icon:'📝' },
-  { label:'600文型(3)・時制の基本 解説', sub:'文型（3）SVOC・時制の基本 ｜ 重要語句の日本語解説', url:'https://sogood117.github.io/1nen-slides/600_bunkei3_jisei_answer.html', icon:'📝' },
-  { label:'600動名詞(1)(2)解説', sub:'動名詞（1）（2） ｜ 重要語句の日本語解説', url:'https://sogood117.github.io/1nen-slides/600_doumeishi12_answer.html', icon:'📝' },
-  { label:'600分詞(1)(2)解説', sub:'分詞（1）（2） ｜ 重要語句の日本語解説', url:'https://sogood117.github.io/1nen-slides/600_bunshi12_answer.html', icon:'📝' },
-  { label:'600完了形(1)(2)解説', sub:'完了形（1）（2） ｜ 重要語句の日本語解説', url:'https://sogood117.github.io/1nen-slides/600_kanryoukei12_answer.html', icon:'📝' },
-];
-const ITEMS_600_GAME = [
-  { label:'英文かるた',           sub:'600文型② ｜ 日本語→英文',      url:'https://sogood117.github.io/1nen-slides/karuta_600bunkei2.html',       icon:'🎴' },
-  { label:'英文かるた（後半探し）', sub:'600文型② ｜ 英文前半→後半',   url:'https://sogood117.github.io/1nen-slides/karuta_600bunkei2_split.html', icon:'🎴' },
-  { label:'並べ替えクイズ',        sub:'600文型② ｜ 日本語→英文の語順', url:'https://sogood117.github.io/1nen-slides/narabe_600bunkei2.html',       icon:'🧩' },
-  { label:'並べ替えクイズ',        sub:'600不定詞②③ ｜ 日本語→英文の語順', url:'https://sogood117.github.io/1nen-slides/narabe_600futeishi23.html',    icon:'🧩' },
-  { label:'並べ替えクイズ',        sub:'600分詞①② ｜ 日本語→英文の語順（QR・音・タイム）', url:'https://sogood117.github.io/1nen-slides/narabe_600bunshi_quiz.html',    icon:'🧩' },
-  { label:'並べ替えクイズ（1〜5）',  sub:'600分詞① ｜ 1〜5の5問だけ・日本語→英文の語順（QR・音・タイム）', url:'https://sogood117.github.io/1nen-slides/narabe_600bunshi_quiz_1-5.html', icon:'🧩' },
-  { label:'英文ならべかえ',        sub:'600分詞①② ｜ カードで語順（切り取りWS付）', url:'https://sogood117.github.io/1nen-slides/narabe_600bunshi.html',        icon:'🧩' },
-  { label:'英文ならべかえ（1〜5）',  sub:'600分詞① ｜ 1〜5の5問だけ・活動用スライド', url:'https://sogood117.github.io/1nen-slides/narabe_600bunshi_1-5.html', icon:'🧩' },
-  { label:'並べ替えクイズ（1〜5）',  sub:'600完了形① ｜ 1〜5の5問・日本語→英文の語順（QR・音・タイム）', url:'https://sogood117.github.io/1nen-slides/narabe_600kanryo_quiz_1-5.html', icon:'🧩' },
-  { label:'並べ替えクイズ（6〜10）', sub:'600完了形② ｜ 6〜10の5問・日本語→英文の語順（QR・音・タイム）', url:'https://sogood117.github.io/1nen-slides/narabe_600kanryo_quiz_6-10.html', icon:'🧩' },
-  { label:'空所補充ミックス',        sub:'600完了形① ｜ 1〜5・空所ランダム＋タイピング/選択（QR・音・コンボ）', url:'https://sogood117.github.io/1nen-slides/kuuho_600kanryo1.html', icon:'✍️' },
-  { label:'空所補充ミックス',        sub:'600完了形② ｜ 6〜10・空所ランダム＋タイピング/選択（QR・音・コンボ）', url:'https://sogood117.github.io/1nen-slides/kuuho_600kanryo2.html', icon:'✍️' },
-  { label:'完了形クエスト',          sub:'600完了形 ｜ ドラクエ風RPG・3択/並べ替えで魔王を倒そう（ドット絵・音・Lvアップ・仲間）', url:'https://sogood117.github.io/1nen-slides/kanryo_quest.html', icon:'🐉' },
+// 600（文法項目ごとに整理）───────────────────────────────────────
+// kind: 教材の種類（バッジ・アイコン・色を決める）
+const KIND_600 = {
+  kaisetsu:{ badge:'解説',    icon:'📝', border:'border-orange-200', tag:'bg-orange-100 text-orange-700 border border-orange-200' },
+  quiz:    { badge:'クイズ',  icon:'🧩', border:'border-purple-200', tag:'bg-purple-100 text-purple-700 border border-purple-200' },
+  katsudo: { badge:'活動',    icon:'✂️', border:'border-sky-200',    tag:'bg-sky-100 text-sky-700 border border-sky-200' },
+  kuuho:   { badge:'空所補充',icon:'✍️', border:'border-pink-200',   tag:'bg-pink-100 text-pink-700 border border-pink-200' },
+  karuta:  { badge:'かるた',  icon:'🎴', border:'border-amber-200',  tag:'bg-amber-100 text-amber-700 border border-amber-200' },
+  quest:   { badge:'ゲーム',  icon:'🐉', border:'border-red-200',    tag:'bg-red-100 text-red-700 border border-red-200' },
+};
+// 文法項目ごとのまとまり（上から授業で扱う順）
+const B = 'https://sogood117.github.io/1nen-slides/';
+const TOPICS_600 = [
+  { topic:'前置詞', items:[
+    { kind:'kaisetsu', label:'解説', sub:'（1）（2）｜ 空所の日本語解説', url:B+'600_prepositions_answer.html' },
+  ]},
+  { topic:'文型', items:[
+    { kind:'kaisetsu', label:'解説（文型③・時制）', sub:'文型（3）SVOC・時制の基本 ｜ 重要語句の日本語解説', url:B+'600_bunkei3_jisei_answer.html' },
+    { kind:'karuta',   label:'英文かるた',            sub:'文型② ｜ 日本語 → 英文', url:B+'karuta_600bunkei2.html' },
+    { kind:'karuta',   label:'英文かるた（後半さがし）', sub:'文型② ｜ 英文の前半 → 後半', url:B+'karuta_600bunkei2_split.html' },
+    { kind:'quiz',     label:'並べ替えクイズ',        sub:'文型② ｜ 日本語 → 英文の語順', url:B+'narabe_600bunkei2.html' },
+  ]},
+  { topic:'不定詞', items:[
+    { kind:'kaisetsu', label:'解説', sub:'（1）（2）｜ 重要語句の日本語解説', url:B+'600_futeishi12_answer.html' },
+    { kind:'quiz',     label:'並べ替えクイズ', sub:'不定詞②③ ｜ 日本語 → 英文の語順', url:B+'narabe_600futeishi23.html' },
+  ]},
+  { topic:'口語表現', items:[
+    { kind:'kaisetsu', label:'解説', sub:'（1）（2）｜ 重要語句の日本語解説', url:B+'600_kougo12_answer.html' },
+  ]},
+  { topic:'動名詞', items:[
+    { kind:'kaisetsu', label:'解説', sub:'（1）（2）｜ 重要語句の日本語解説', url:B+'600_doumeishi12_answer.html' },
+  ]},
+  { topic:'分詞', items:[
+    { kind:'kaisetsu', label:'解説', sub:'（1）（2）｜ 重要語句の日本語解説', url:B+'600_bunshi12_answer.html' },
+    { kind:'quiz',    label:'並べ替えクイズ（全10問）', sub:'分詞①② ｜ 日本語 → 英文の語順（QR・音・タイム）', url:B+'narabe_600bunshi_quiz.html' },
+    { kind:'quiz',    label:'並べ替えクイズ（1〜5問）', sub:'分詞① ｜ 5問だけ（QR・音・タイム）', url:B+'narabe_600bunshi_quiz_1-5.html' },
+    { kind:'katsudo', label:'英文ならべかえ・カード（全10問）', sub:'分詞①② ｜ カードで語順・切り取りWS付', url:B+'narabe_600bunshi.html' },
+    { kind:'katsudo', label:'英文ならべかえ・カード（1〜5問）', sub:'分詞① ｜ 5問だけ・活動用スライド', url:B+'narabe_600bunshi_1-5.html' },
+  ]},
+  { topic:'完了形', items:[
+    { kind:'kaisetsu', label:'解説', sub:'（1）（2）｜ 重要語句の日本語解説', url:B+'600_kanryoukei12_answer.html' },
+    { kind:'quiz',  label:'並べ替えクイズ（1〜5問）', sub:'完了形① ｜ 日本語 → 英文の語順（QR・音・タイム）', url:B+'narabe_600kanryo_quiz_1-5.html' },
+    { kind:'quiz',  label:'並べ替えクイズ（6〜10問）', sub:'完了形② ｜ 日本語 → 英文の語順（QR・音・タイム）', url:B+'narabe_600kanryo_quiz_6-10.html' },
+    { kind:'kuuho', label:'空所補充ミックス（1〜5問）', sub:'完了形① ｜ 空所ランダム＋入力/選択（QR・音・コンボ）', url:B+'kuuho_600kanryo1.html' },
+    { kind:'kuuho', label:'空所補充ミックス（6〜10問）', sub:'完了形② ｜ 空所ランダム＋入力/選択（QR・音・コンボ）', url:B+'kuuho_600kanryo2.html' },
+    { kind:'quest', label:'完了形クエスト', sub:'ドラクエ風RPG ｜ 3択/並べ替えで魔王を倒そう（ドット絵・音・Lvアップ）', url:B+'kanryo_quest.html' },
+  ]},
 ];
 // 全商英検３級（全商英語検定試験問題集の解答など）
 const ITEMS_ZENSHO3 = [
@@ -292,31 +316,50 @@ function renderGrade(container, repo, files) {
 }
 
 // ── 600タブ ───────────────────────────────────────────────────────
-function render600() {
-  const container = document.getElementById('content-grade-600');
-  const kaisetsuHTML = ITEMS_600_KAISETSU.map(item=>staticCard(item,'border-orange-200','bg-orange-100 text-orange-700 border border-orange-200','解説')).join('');
-  const gameHTML     = ITEMS_600_GAME.map(item=>staticCard(item,'border-purple-200','bg-purple-100 text-purple-700 border border-purple-200','ゲーム')).join('');
-
-  container.innerHTML = `
-    <div class="space-y-8">
-      <div>
-        <div class="flex items-center gap-3 mb-4">
-          <div class="flex items-center gap-2 bg-orange-500 text-white px-4 py-2 rounded-xl font-black text-lg shadow">📝 600解説</div>
-          <span class="text-sm text-gray-400">${ITEMS_600_KAISETSU.length} アイテム</span>
+function card600(item) {
+  const k = KIND_600[item.kind] || KIND_600.quiz;
+  return `
+    <a href="${item.url}" target="_blank" rel="noopener"
+      class="slide-card bg-white rounded-xl border ${k.border} p-4 flex items-center justify-between gap-3 no-underline">
+      <div class="flex items-center gap-3">
+        <div class="text-2xl">${k.icon}</div>
+        <div>
+          <p class="font-bold text-gray-800 text-sm leading-tight">${item.label}</p>
+          <p class="text-xs text-gray-400 mt-0.5">${item.sub}</p>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">${kaisetsuHTML}</div>
       </div>
-      <div>
-        <div class="flex items-center gap-3 mb-4">
-          <div class="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-xl font-black text-lg shadow">🎮 600ゲーム</div>
-          <span class="text-sm text-gray-400">${ITEMS_600_GAME.length} アイテム</span>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">${gameHTML}</div>
-      </div>
-    </div>
-  `;
+      <span class="text-xs font-bold px-2 py-0.5 rounded-full whitespace-nowrap ${k.tag}">${k.badge}</span>
+    </a>`;
 }
 
+function render600() {
+  const container = document.getElementById('content-grade-600');
+  const total = TOPICS_600.reduce((n,t)=>n+t.items.length, 0);
+
+  const legend = Object.values(KIND_600).map(k =>
+    `<span class="inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full ${k.tag}">${k.icon} ${k.badge}</span>`
+  ).join('');
+
+  const topicsHTML = TOPICS_600.map(t => `
+    <div>
+      <div class="flex items-center gap-2 mb-3">
+        <span class="bg-orange-500 text-white px-3 py-1 rounded-lg font-bold text-sm shadow-sm">${t.topic}</span>
+        <span class="text-xs text-gray-400">${t.items.length} 件</span>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">${t.items.map(card600).join('')}</div>
+    </div>`).join('');
+
+  container.innerHTML = `
+    <div class="flex items-center gap-3 mb-4">
+      <div class="flex items-center gap-2 bg-orange-500 text-white px-4 py-2 rounded-xl font-black text-lg shadow">📙 600（文法項目べつ）</div>
+      <span class="text-sm text-gray-400">${total} アイテム</span>
+    </div>
+    <div class="flex flex-wrap items-center gap-2 mb-6 bg-orange-50 border border-orange-100 rounded-xl px-3 py-2">
+      <span class="text-xs text-gray-500 font-bold mr-1">種類：</span>${legend}
+    </div>
+    <div class="space-y-6">${topicsHTML}</div>
+  `;
+}
 // ── その他タブ ────────────────────────────────────────────────────
 function renderMisc() {
   const container = document.getElementById('content-grade-misc');
