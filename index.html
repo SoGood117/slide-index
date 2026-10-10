@@ -68,9 +68,10 @@ const REPOS = [
   { id:'grade-3', repo:'3nen-slides', label:'3年生', color:'red',   icon:'📕', pageBase:'https://sogood117.github.io/3nen-slides/' },
 ];
 
-// 学年タブから除外するファイルのプレフィックス
+// 学年タブから除外するファイル（600教材・ゲームは「600」タブへまとめる）
 function shouldExclude(name) {
-  return ['karuta_','narabe_','pronouns_','600_','sample_sharing'].some(p => name.startsWith(p));
+  if (name.endsWith('_quest.html')) return true; // クエスト系ゲーム（完了形/分詞クエスト等）
+  return ['karuta_','narabe_','pronouns_','600_','kuuho_','sample_sharing'].some(p => name.startsWith(p));
 }
 
 // 600（文法項目ごとに整理）───────────────────────────────────────
@@ -111,6 +112,7 @@ const TOPICS_600 = [
     { kind:'quiz',    label:'並べ替えクイズ（1〜5問）', sub:'分詞① ｜ 5問だけ（QR・音・タイム）', url:B+'narabe_600bunshi_quiz_1-5.html' },
     { kind:'katsudo', label:'英文ならべかえ・カード（全10問）', sub:'分詞①② ｜ カードで語順・切り取りWS付', url:B+'narabe_600bunshi.html' },
     { kind:'katsudo', label:'英文ならべかえ・カード（1〜5問）', sub:'分詞① ｜ 5問だけ・活動用スライド', url:B+'narabe_600bunshi_1-5.html' },
+    { kind:'quest', label:'分詞クエスト', sub:'ドラクエ風RPG ｜ 3択/並べ替えで魔王を倒そう（ドット絵・音・Lvアップ）', url:'https://sogood117.github.io/2nen-slides/bunshi_quest.html' },
   ]},
   { topic:'完了形', items:[
     { kind:'kaisetsu', label:'解説', sub:'（1）（2）｜ 重要語句の日本語解説', url:B+'600_kanryoukei12_answer.html' },
@@ -208,10 +210,6 @@ async function refreshCurrent() {
 // ── ファイル名パース ──────────────────────────────────────────────
 function parseFileName(name) {
   const base = name.replace('.html','');
-
-  // RPG風ゲーム → 学年タブの最後の「🐉 ゲーム」グループにまとめる
-  const GAME_LABELS = { 'kanryo_quest': '完了形クエスト', 'bunshi_quest': '分詞クエスト' };
-  if (GAME_LABELS[base]) return { label: GAME_LABELS[base], lesson:2000, tag:'section', sectionNum:0, group:'🐉 ゲーム' };
 
   // 中間考査 対策プリント 解説（taisaku_L3_P1 形式）→ 学年タブの最後にまとめる
   const tm = base.match(/^taisaku_L(\d+)(?:_P(\d+))?$/);
