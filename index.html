@@ -223,6 +223,12 @@ function parseFileName(name) {
   // 中間考査 対策プリント 解説（taisaku_L3_P1 形式）→ 学年タブの最後にまとめる
   const tm = base.match(/^taisaku_L(\d+)(?:_P(\d+))?$/);
   if (tm) return { label: tm[2] ? `Lesson ${tm[1]} Part ${tm[2]}` : `Lesson ${tm[1]}`, lesson:1000, tag:'taisaku', sectionNum: tm[2] ? parseInt(tm[2],10) : parseInt(tm[1],10), group:'中間考査対策' };
+  // 期末考査 対策プリント（taisaku_kimatsu_*）→ ２学期期末考査対策グループ（中間の後）
+  if (base.startsWith('taisaku_kimatsu')) {
+    const KIMATSU_LABELS = { 'taisaku_kimatsu_L5': '期末対策（Lesson 5・読解＆文法）' };
+    let lbl = KIMATSU_LABELS[base] || base.replace(/^taisaku_kimatsu_?/,'期末対策 ').replace(/_/g,' ');
+    return { label: lbl, lesson:1001, tag:'taisaku', sectionNum:900, group:'２学期期末考査対策' };
+  }
   // Lesson 形式以外の対策プリント（例：問題集の解説）も中間考査対策グループに続ける
   if (base.startsWith('taisaku_')) {
     const TAISAKU_LABELS = { 'taisaku_willing_p28-33': '中間対策（Willing）', 'taisaku_willing_p70-75': '中間対策（Willing）', 'taisaku_greenprep_p38-41': '中間対策（グリーンプレップ）' };
