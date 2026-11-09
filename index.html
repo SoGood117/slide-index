@@ -229,13 +229,13 @@ function parseFileName(name) {
     let lbl = KIMATSU_LABELS[base] || base.replace(/^taisaku_kimatsu_?/,'期末対策 ').replace(/_/g,' ');
     return { label: lbl, lesson:1001, tag:'taisaku', sectionNum:900, group:'２学期期末考査対策' };
   }
-  // Willing（問題集）→ ２学期期末考査対策グループへ（期末対策の名前で表示）
-  if (base === 'taisaku_willing_p28-33' || base === 'taisaku_willing_p70-75') {
+  // Willing（問題集）期末範囲 → ２学期期末考査対策グループへ
+  if (base === 'taisaku_willing_p34-37' || base === 'taisaku_willing_p76-79') {
     return { label: '期末対策（Willing）', lesson:1001, tag:'taisaku', sectionNum:900, group:'２学期期末考査対策' };
   }
   // Lesson 形式以外の対策プリント（例：問題集の解説）も中間考査対策グループに続ける
   if (base.startsWith('taisaku_')) {
-    const TAISAKU_LABELS = { 'taisaku_greenprep_p38-41': '中間対策（グリーンプレップ）' };
+    const TAISAKU_LABELS = { 'taisaku_willing_p28-33': '中間対策（Willing）', 'taisaku_willing_p70-75': '中間対策（Willing）', 'taisaku_greenprep_p38-41': '中間対策（グリーンプレップ）' };
     let lbl = TAISAKU_LABELS[base];
     if (!lbl) {
       lbl = base.replace(/^taisaku_/,'').replace(/_/g,' ').replace(/\bp(\d)/i,'p.$1');
