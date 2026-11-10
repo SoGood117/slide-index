@@ -225,7 +225,7 @@ function parseFileName(name) {
   if (tm) return { label: tm[2] ? `Lesson ${tm[1]} Part ${tm[2]}` : `Lesson ${tm[1]}`, lesson:1000, tag:'taisaku', sectionNum: tm[2] ? parseInt(tm[2],10) : parseInt(tm[1],10), group:'中間考査対策' };
   // 期末考査 対策プリント（taisaku_kimatsu_*）→ ２学期期末考査対策グループ（中間の後）
   if (base.startsWith('taisaku_kimatsu')) {
-    const KIMATSU_LABELS = { 'taisaku_kimatsu_L5': '期末対策（Lesson 5・読解＆文法）' };
+    const KIMATSU_LABELS = { 'taisaku_kimatsu_L5': '期末対策（Lesson 5・読解＆文法）', 'taisaku_kimatsu_L4': '期末対策（Lesson 4・教科書）', 'taisaku_kimatsu_L10': '期末対策（Lesson 10・教科書）' };
     let lbl = KIMATSU_LABELS[base] || base.replace(/^taisaku_kimatsu_?/,'期末対策 ').replace(/_/g,' ');
     return { label: lbl, lesson:1001, tag:'taisaku', sectionNum:900, group:'２学期期末考査対策' };
   }
